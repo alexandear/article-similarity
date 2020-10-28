@@ -1,16 +1,23 @@
 package similarity
 
 import (
-	"reflect"
-	"sort"
-	"strings"
+	"github.com/adrg/strutil"
+	"github.com/adrg/strutil/metrics"
 )
 
+const threshold = 0.95
+
 func IsSimilar(article1, article2 string) bool {
-	const sep = " "
-	words1 := strings.Split(article1, sep)
-	words2 := strings.Split(article2, sep)
-	sort.Strings(words1)
-	sort.Strings(words2)
-	return reflect.DeepEqual(words1, words2)
+	swg := &metrics.SmithWatermanGotoh{
+		CaseSensitive: false,
+		GapPenalty:    -0.2,
+		Substitution: metrics.MatchMismatch{
+			Match:    1,
+			Mismatch: -1,
+		},
+	}
+
+	sim := strutil.Similarity(article1, article2, swg)
+
+	return sim >= threshold
 }

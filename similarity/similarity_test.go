@@ -9,8 +9,7 @@ import (
 )
 
 func TestIsSimilar(t *testing.T) {
-	article1 := "hello world"
-	article2 := "world hello"
-
-	assert.True(t, similarity.IsSimilar(article1, article2))
+	assert.False(t, similarity.IsSimilar("times new roman", "times roman"))
+	assert.False(t, similarity.IsSimilar("hello world", "world hello"))
+	assert.True(t, similarity.IsSimilar("hello a beautiful world ever", "hello a beautiful great world ever"))
 }
