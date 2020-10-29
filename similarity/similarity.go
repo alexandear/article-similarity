@@ -1,23 +1,37 @@
 package similarity
 
 import (
-	"github.com/adrg/strutil"
-	"github.com/adrg/strutil/metrics"
+	"strings"
+
+	"github.com/devchallenge/article-similarity/util"
 )
 
-const threshold = 0.95
+type Similarity struct {
+	Threshold float64
+}
 
-func IsSimilar(article1, article2 string) bool {
-	swg := &metrics.SmithWatermanGotoh{
-		CaseSensitive: false,
-		GapPenalty:    -0.2,
-		Substitution: metrics.MatchMismatch{
-			Match:    1,
-			Mismatch: -1,
-		},
+// NewSimilarity returns Similarity with 0.95 threshold
+func NewSimilarity() *Similarity {
+	return &Similarity{
+		Threshold: 0.95,
 	}
+}
 
-	sim := strutil.Similarity(article1, article2, swg)
+func (s *Similarity) Similarity(articleA, articleB string) float64 {
+	lev := NewLevenshtein()
 
-	return sim >= threshold
+	sim := lev.CompareSentence(tokens(articleA), tokens(articleB))
+
+	return sim
+}
+
+// tokens removes non-alphanumeric character, splits by whitespace characters and returns lowercase words
+func tokens(article string) []string {
+	a := string(util.Strip([]byte(article)))
+	a = strings.ToLower(a)
+	return strings.Fields(a)
+}
+
+func (s *Similarity) IsSimilar(articleA, articleB string) bool {
+	return s.Similarity(articleA, articleB) >= s.Threshold
 }
