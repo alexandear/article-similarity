@@ -25,22 +25,20 @@ linters-settings:
   gocritic:
     enabled-tags:
       - experimental
+  gci:
+    local-prefixes: github.com/devchallenge/article-similarity
 
 linters:
   enable-all: true
-  disable:
-    - wsl
-    - lll
-    - nlreturn
-    - gomnd
-    - godot
-    - gci
-    - gocritic
-    - exhaustivestruct
-    - gochecknoglobals
 
 issues:
   exclude-rules:
     - linters:
         - lll
       source: "^//go:generate "
+    - linters:
+        - exhaustivestruct
+      path: "cmd/server.go"
+    - linters:
+        - exhaustivestruct
+      path: "cmd/root.go"

@@ -15,6 +15,7 @@ help:
 	@echo '    format             Run gofmt on package sources.'
 	@echo '    generate           Generate swagger code, mocks and other code.'
 	@echo '    help               Show this help screen.'
+	@echo '    lint               Run linter.'
 	@echo '    swagger            Generate only swagger code.'
 	@echo '    test               Run tests.'
 	@echo ''

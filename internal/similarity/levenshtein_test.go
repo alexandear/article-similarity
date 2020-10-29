@@ -31,7 +31,7 @@ func TestLevenshtein_Compare(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			lev := NewLevenshtein()
 
-			res := lev.Compare(tc.sequenceA, tc.sequenceB, DefaultCompareFn)
+			res := lev.Compare(tc.sequenceA, tc.sequenceB, DefaultCompareFn())
 
 			assert.Equal(t, tc.expected, res)
 		})
@@ -63,7 +63,7 @@ func TestLevenshtein_Distance(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			lev := NewLevenshtein()
 
-			res := lev.Distance(tc.sequenceA, tc.sequenceB, DefaultCompareFn)
+			res := lev.Distance(tc.sequenceA, tc.sequenceB, DefaultCompareFn())
 
 			assert.Equal(t, tc.expected, res)
 		})
