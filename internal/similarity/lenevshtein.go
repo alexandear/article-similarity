@@ -37,17 +37,23 @@ type Element interface{}
 // CompareFn is function to compare elements.
 type CompareFn func(a, b Element) bool
 
-var DefaultCompareFn = func(a, b Element) bool { return a == b }
+func DefaultCompareFn() CompareFn {
+	return func(a, b Element) bool { return a == b }
+}
+
+const compareSame = 1.0
 
 // Compare returns the Levenshtein similarity of sequenceA and sequenceB. Sequences is comparing with compare function.
 // The returned similarity is a number between 0 and 1. Larger similarity numbers indicate closer matches.
 func (m *Levenshtein) Compare(sequenceA, sequenceB []Element, compare CompareFn) float64 {
 	distance := m.Distance(sequenceA, sequenceB, compare)
 	if distance == 0 {
-		return 1.0
+		return compareSame
 	}
+
 	maxLen := util.Max(len(sequenceA), len(sequenceB))
-	return 1 - float64(distance)/float64(maxLen)
+
+	return compareSame - float64(distance)/float64(maxLen)
 }
 
 // Distance returns the Levenshtein distance between sequenceA and sequenceB. Sequences is comparing with compare
@@ -61,6 +67,7 @@ func (m *Levenshtein) Distance(sequenceA, sequenceB []Element, compare CompareFn
 	if lenA == 0 {
 		return m.InsertCost * lenB
 	}
+
 	if lenB == 0 {
 		return m.DeleteCost * lenA
 	}
@@ -73,6 +80,7 @@ func (m *Levenshtein) Distance(sequenceA, sequenceB []Element, compare CompareFn
 	col := make([]int, lenB+1)
 	for i := 0; i < lenA; i++ {
 		col[0] = i + 1
+
 		for j := 0; j < lenB; j++ {
 			delCost := prevCol[j+1] + m.DeleteCost
 			insCost := col[j] + m.InsertCost
@@ -94,13 +102,13 @@ func (m *Levenshtein) Distance(sequenceA, sequenceB []Element, compare CompareFn
 // CompareWord returns the Levenshtein similarity between wordA and wordB strings.
 // The function is a specialization of Compare for characters.
 func (m *Levenshtein) CompareWord(wordA, wordB string) float64 {
-	return m.Compare(stringToElementSlice(wordA), stringToElementSlice(wordB), DefaultCompareFn)
+	return m.Compare(stringToElementSlice(wordA), stringToElementSlice(wordB), DefaultCompareFn())
 }
 
 // DistanceWord returns the Levenshtein distance between wordA and wordB strings.
 // The function is a specialization of Distance for characters.
 func (m *Levenshtein) DistanceWord(wordA, wordB string) int {
-	return m.Distance(stringToElementSlice(wordA), stringToElementSlice(wordB), DefaultCompareFn)
+	return m.Distance(stringToElementSlice(wordA), stringToElementSlice(wordB), DefaultCompareFn())
 }
 
 // CompareSentence returns the Levenshtein similarity between sentenceA and sentenceB sentences.
@@ -108,7 +116,7 @@ func (m *Levenshtein) DistanceWord(wordA, wordB string) int {
 // case sensitive strings comparing.
 func (m *Levenshtein) CompareSentence(sentenceA, sentenceB []string) float64 {
 	return m.Compare(stringSliceToElementSlice(sentenceA), stringSliceToElementSlice(sentenceB),
-		DefaultCompareFn)
+		DefaultCompareFn())
 }
 
 // DistanceSentence returns the Levenshtein distance between sentenceA and sentenceB sentences.
@@ -116,7 +124,7 @@ func (m *Levenshtein) CompareSentence(sentenceA, sentenceB []string) float64 {
 // case sensitive strings comparing.
 func (m *Levenshtein) DistanceSentence(sentenceA, sentenceB []string) int {
 	return m.Distance(stringSliceToElementSlice(sentenceA), stringSliceToElementSlice(sentenceB),
-		DefaultCompareFn)
+		DefaultCompareFn())
 }
 
 func stringToElementSlice(str string) []Element {

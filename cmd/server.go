@@ -43,6 +43,7 @@ func (s *AppServer) Cmd() *cobra.Command {
 		},
 	}
 	cmd.PersistentFlags().AddFlagSet(s.config.Flags())
+
 	return cmd
 }
 
