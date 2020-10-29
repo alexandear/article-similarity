@@ -8,40 +8,45 @@ import (
 
 func TestSimilarity_Similarity(t *testing.T) {
 	for name, tc := range map[string]struct {
-		articleA string
-		articleB string
+		contentA string
+		contentB string
 		expected float64
 	}{
 		"when empty strings": {
-			articleA: "",
-			articleB: "",
+			contentA: "",
+			contentB: "",
 			expected: 1.0,
 		},
 		"when strings with only whitespaces": {
-			articleA: " ",
-			articleB: "\t\n\r\f",
+			contentA: " ",
+			contentB: "\t\n\r\f",
 			expected: 1.0,
 		},
 		"when equal strings": {
-			articleA: "hello, world",
-			articleB: "hello, world",
+			contentA: "hello, world",
+			contentB: "hello, world",
 			expected: 1.0,
 		},
 		"when one word strings with different case": {
-			articleA: "Hello",
-			articleB: "HELLO",
+			contentA: "Hello",
+			contentB: "HELLO",
 			expected: 1.0,
 		},
-		"when articles with punctuation": {
-			articleA: "hello world",
-			articleB: "!? hello, - world,",
+		"when contents with punctuation": {
+			contentA: "hello world",
+			contentB: "!? hello, - world,",
+			expected: 1.0,
+		},
+		"when contents with articles": {
+			contentA: "hello the world",
+			contentB: "hello a world,",
 			expected: 1.0,
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			sim := NewSimilarity()
 
-			res := sim.Similarity(tc.articleA, tc.articleB)
+			res := sim.Similarity(tc.contentA, tc.contentB)
 
 			assert.Equal(t, tc.expected, res)
 		})
@@ -50,10 +55,10 @@ func TestSimilarity_Similarity(t *testing.T) {
 
 func TestSimilarity_IsSimilar(t *testing.T) {
 	sim := Similarity{
-		Threshold: 0.8,
+		Threshold: 0.7,
 	}
 
-	res := sim.IsSimilar("hello a very beautiful world", "hello a beautiful world")
+	res := sim.IsSimilar("hello a very beautiful world", "hello beautiful world")
 
 	assert.True(t, res)
 }

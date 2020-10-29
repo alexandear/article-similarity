@@ -19,22 +19,35 @@ func NewSimilarity() *Similarity {
 	}
 }
 
-func (s *Similarity) Similarity(articleA, articleB string) float64 {
+func (s *Similarity) Similarity(contentA, contentB string) float64 {
 	lev := NewLevenshtein()
 
-	sim := lev.CompareSentence(tokens(articleA), tokens(articleB))
+	sim := lev.CompareSentence(normalize(contentA), normalize(contentB))
 
 	return sim
 }
 
-// tokens removes non-alphanumeric character, splits by whitespace characters and returns lowercase words.
-func tokens(article string) []string {
-	a := string(util.Strip([]byte(article)))
-	a = strings.ToLower(a)
+// normalize removes non-alphanumeric character, splits by whitespace characters, removes articles (a, an, the) and
+// returns lowercase words.
+func normalize(content string) []string {
+	modContent := string(util.Strip([]byte(content)))
+	modContent = strings.ToLower(modContent)
+	fields := strings.Fields(modContent)
 
-	return strings.Fields(a)
+	res := make([]string, 0, len(fields))
+	articles := []string{"a", "an", "the"}
+
+	for _, t := range fields {
+		if util.Contains(articles, t) {
+			continue
+		}
+
+		res = append(res, t)
+	}
+
+	return res
 }
 
-func (s *Similarity) IsSimilar(articleA, articleB string) bool {
-	return s.Similarity(articleA, articleB) >= s.Threshold
+func (s *Similarity) IsSimilar(contentA, contentB string) bool {
+	return s.Similarity(contentA, contentB) >= s.Threshold
 }
