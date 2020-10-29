@@ -1,7 +1,7 @@
 package similarity
 
 import (
-	"github.com/devchallenge/article-similarity/util"
+	"github.com/devchallenge/article-similarity/internal/util"
 )
 
 // Levenshtein represents the Levenshtein metric for measuring the similarity between sequences.

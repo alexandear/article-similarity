@@ -3,7 +3,7 @@ package similarity
 import (
 	"strings"
 
-	"github.com/devchallenge/article-similarity/util"
+	"github.com/devchallenge/article-similarity/internal/util"
 )
 
 type Similarity struct {
