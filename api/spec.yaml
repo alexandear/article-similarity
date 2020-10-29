@@ -13,6 +13,62 @@ paths:
   /articles:
     post:
       summary: Add an article
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - content
+            properties:
+              content:
+                description: Article content
+                type: string
+          required: true
       responses:
         200:
           description: OK
+          schema:
+            type: object
+            properties:
+              id:
+                description: Article id
+                type: integer
+                format: int64
+              content:
+                description: Article content
+                type: string
+              duplicate_article_ids:
+                type: array
+                items:
+                  type: integer
+            required:
+              - id
+              - content
+              - duplicate_article_ids
+        400:
+          $ref: "#/responses/InvalidArgument"
+        500:
+          $ref: "#/responses/ServerError"
+
+definitions:
+  Error:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int64
+      message:
+        type: string
+    required:
+      - message
+
+responses:
+  InvalidArgument:
+    description: Invalid arguments
+    schema:
+      $ref: '#/definitions/Error'
+  ServerError:
+    description: Internal server error
+    schema:
+      $ref: "#/definitions/Error"

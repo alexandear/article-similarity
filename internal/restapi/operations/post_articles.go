@@ -8,7 +8,11 @@ package operations
 import (
 	"net/http"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // PostArticlesHandlerFunc turns a function with the right signature into a post articles handler
@@ -55,4 +59,140 @@ func (o *PostArticles) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
+}
+
+// PostArticlesBody post articles body
+//
+// swagger:model PostArticlesBody
+type PostArticlesBody struct {
+
+	// Article content
+	// Required: true
+	Content *string `json:"content"`
+}
+
+// Validate validates this post articles body
+func (o *PostArticlesBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateContent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *PostArticlesBody) validateContent(formats strfmt.Registry) error {
+
+	if err := validate.Required("body"+"."+"content", "body", o.Content); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *PostArticlesBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *PostArticlesBody) UnmarshalBinary(b []byte) error {
+	var res PostArticlesBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+// PostArticlesOKBody post articles o k body
+//
+// swagger:model PostArticlesOKBody
+type PostArticlesOKBody struct {
+
+	// Article content
+	// Required: true
+	Content *string `json:"content"`
+
+	// duplicate article ids
+	// Required: true
+	DuplicateArticleIds []int64 `json:"duplicate_article_ids"`
+
+	// Article id
+	// Required: true
+	ID *int64 `json:"id"`
+}
+
+// Validate validates this post articles o k body
+func (o *PostArticlesOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateContent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateDuplicateArticleIds(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *PostArticlesOKBody) validateContent(formats strfmt.Registry) error {
+
+	if err := validate.Required("postArticlesOK"+"."+"content", "body", o.Content); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *PostArticlesOKBody) validateDuplicateArticleIds(formats strfmt.Registry) error {
+
+	if err := validate.Required("postArticlesOK"+"."+"duplicate_article_ids", "body", o.DuplicateArticleIds); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *PostArticlesOKBody) validateID(formats strfmt.Registry) error {
+
+	if err := validate.Required("postArticlesOK"+"."+"id", "body", o.ID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *PostArticlesOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *PostArticlesOKBody) UnmarshalBinary(b []byte) error {
+	var res PostArticlesOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
 }

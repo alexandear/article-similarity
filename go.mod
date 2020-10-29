@@ -9,9 +9,11 @@ require (
 	github.com/go-openapi/spec v0.19.8
 	github.com/go-openapi/strfmt v0.19.5
 	github.com/go-openapi/swag v0.19.9
+	github.com/go-openapi/validate v0.19.10
 	github.com/go-swagger/go-swagger v0.25.0
 	github.com/golang/mock v1.3.1
 	github.com/golangci/golangci-lint v1.32.0
+	github.com/kelseyhightower/memkv v0.1.1
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/pflag v1.0.5

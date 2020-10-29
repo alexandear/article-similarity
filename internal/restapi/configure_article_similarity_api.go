@@ -6,7 +6,6 @@ import (
 	"crypto/tls"
 	"net/http"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 
@@ -21,7 +20,7 @@ func configureFlags(api *operations.ArticleSimilarityAPIAPI) {
 
 func configureAPI(api *operations.ArticleSimilarityAPIAPI) http.Handler {
 	// configure the api here
-	api.ServeError = errors.ServeError
+	api.ServeError = ServeError
 
 	// Set your custom logger if needed. Default one is log.Printf
 	// Expected interface func(string, ...interface{})

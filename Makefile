@@ -57,6 +57,9 @@ swagger:
 	@echo swagger
 	@go install github.com/go-swagger/go-swagger/cmd/swagger
 	@rm -rf $(SWAGGER_GEN_PATH)/models
-	@rm -rf $(SWAGGER_GEN_PATH)/restapi
+	@rm -rf $(SWAGGER_GEN_PATH)/restapi/operations
+	@rm -rf $(SWAGGER_GEN_PATH)/restapi/server.go
+	@rm -rf $(SWAGGER_GEN_PATH)/restapi/doc.go
+	@rm -rf $(SWAGGER_GEN_PATH)/restapi/embedded_spec.go
 	@$(SWAGGER) generate server -f $(SPEC) -t $(SWAGGER_GEN_PATH) --exclude-main --flag-strategy pflag
 

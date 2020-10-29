@@ -35,11 +35,92 @@ func init() {
     "/articles": {
       "post": {
         "summary": "Add an article",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "content"
+              ],
+              "properties": {
+                "content": {
+                  "description": "Article content",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "required": [
+                "id",
+                "content",
+                "duplicate_article_ids"
+              ],
+              "properties": {
+                "content": {
+                  "description": "Article content",
+                  "type": "string"
+                },
+                "duplicate_article_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                "id": {
+                  "description": "Article id",
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidArgument"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
           }
         }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "type": "object",
+      "required": [
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "responses": {
+    "InvalidArgument": {
+      "description": "Invalid arguments",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "ServerError": {
+      "description": "Internal server error",
+      "schema": {
+        "$ref": "#/definitions/Error"
       }
     }
   }
@@ -62,11 +143,98 @@ func init() {
     "/articles": {
       "post": {
         "summary": "Add an article",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "content"
+              ],
+              "properties": {
+                "content": {
+                  "description": "Article content",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "required": [
+                "id",
+                "content",
+                "duplicate_article_ids"
+              ],
+              "properties": {
+                "content": {
+                  "description": "Article content",
+                  "type": "string"
+                },
+                "duplicate_article_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                "id": {
+                  "description": "Article id",
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid arguments",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           }
         }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "type": "object",
+      "required": [
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "responses": {
+    "InvalidArgument": {
+      "description": "Invalid arguments",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "ServerError": {
+      "description": "Internal server error",
+      "schema": {
+        "$ref": "#/definitions/Error"
       }
     }
   }

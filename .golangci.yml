@@ -42,3 +42,9 @@ issues:
     - linters:
         - exhaustivestruct
       path: "cmd/root.go"
+    - linters:
+        - wsl
+        - gomnd
+        - nlreturn
+        - errorlint
+      path: "internal/restapi/error.go"

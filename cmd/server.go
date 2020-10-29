@@ -2,10 +2,12 @@ package cmd
 
 import (
 	"github.com/go-openapi/loads"
+	"github.com/kelseyhightower/memkv"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	cmder "github.com/yaegashi/cobra-cmder"
 
+	"github.com/devchallenge/article-similarity/internal/handler"
 	"github.com/devchallenge/article-similarity/internal/restapi"
 	"github.com/devchallenge/article-similarity/internal/restapi/operations"
 	"github.com/devchallenge/article-similarity/internal/util"
@@ -35,6 +37,12 @@ func (s *AppServer) Cmd() *cobra.Command {
 			serv := server{Server: restapi.NewServer(api)}
 			defer util.Close(serv)
 
+			store := memkv.New()
+
+			h := handler.New(&store)
+			h.ConfigureHandlers(api)
+
+			serv.ConfigureAPI()
 			if err := serv.Serve(); err != nil {
 				return errors.WithStack(err)
 			}
