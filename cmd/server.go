@@ -26,10 +26,10 @@ func (s *AppServer) Cmd() *cobra.Command {
 		Short: "Start HTTP server",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			serv, err := restapi.NewArticleServer(log.Printf, s.config.SimilarityThreshold)
-			defer util.Close(serv)
 			if err != nil {
 				return errors.WithStack(err)
 			}
+			defer util.Close(serv)
 
 			return serv.Serve()
 		},
