@@ -35,7 +35,7 @@ func NewPostArticles(ctx *middleware.Context, handler PostArticlesHandler) *Post
 
 /*PostArticles swagger:route POST /articles postArticles
 
-Add an article
+Add an article.
 
 */
 type PostArticles struct {

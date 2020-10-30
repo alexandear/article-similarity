@@ -26,7 +26,7 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "Server to store articles and search similar articles",
+    "description": "Server to store articles and search similar articles.",
     "title": "Article similarity",
     "version": "1.0.0"
   },
@@ -34,7 +34,7 @@ func init() {
   "paths": {
     "/articles": {
       "post": {
-        "summary": "Add an article",
+        "summary": "Add an article.",
         "parameters": [
           {
             "name": "body",
@@ -69,7 +69,7 @@ func init() {
     },
     "/articles/{id}": {
       "get": {
-        "summary": "Get article by id",
+        "summary": "Get article by id.",
         "parameters": [
           {
             "type": "integer",
@@ -108,10 +108,12 @@ func init() {
       ],
       "properties": {
         "code": {
+          "description": "Error code for machine parsing.",
           "type": "integer",
           "format": "int64"
         },
         "message": {
+          "description": "Human-readable error message.",
           "type": "string"
         }
       }
@@ -169,7 +171,7 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "Server to store articles and search similar articles",
+    "description": "Server to store articles and search similar articles.",
     "title": "Article similarity",
     "version": "1.0.0"
   },
@@ -177,7 +179,7 @@ func init() {
   "paths": {
     "/articles": {
       "post": {
-        "summary": "Add an article",
+        "summary": "Add an article.",
         "parameters": [
           {
             "name": "body",
@@ -243,7 +245,7 @@ func init() {
     },
     "/articles/{id}": {
       "get": {
-        "summary": "Get article by id",
+        "summary": "Get article by id.",
         "parameters": [
           {
             "type": "integer",
@@ -313,10 +315,12 @@ func init() {
       ],
       "properties": {
         "code": {
+          "description": "Error code for machine parsing.",
           "type": "integer",
           "format": "int64"
         },
         "message": {
+          "description": "Human-readable error message.",
           "type": "string"
         }
       }

@@ -17,10 +17,10 @@ import (
 // swagger:model Error
 type Error struct {
 
-	// code
+	// Error code for machine parsing.
 	Code int64 `json:"code,omitempty"`
 
-	// message
+	// Human-readable error message.
 	// Required: true
 	Message *string `json:"message"`
 }

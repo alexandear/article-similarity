@@ -2,7 +2,7 @@
 
 // Package restapi Article similarity
 //
-//  Server to store articles and search similar articles
+//  Server to store articles and search similar articles.
 //  Schemes:
 //    http
 //  Host: localhost

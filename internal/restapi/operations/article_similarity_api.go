@@ -51,7 +51,7 @@ func NewArticleSimilarityAPI(spec *loads.Document) *ArticleSimilarityAPI {
 	}
 }
 
-/*ArticleSimilarityAPI Server to store articles and search similar articles */
+/*ArticleSimilarityAPI Server to store articles and search similar articles. */
 type ArticleSimilarityAPI struct {
 	spec            *loads.Document
 	context         *middleware.Context

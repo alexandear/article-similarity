@@ -2,7 +2,7 @@ swagger: "2.0"
 info:
   title: Article similarity
   version: "1.0.0"
-  description: Server to store articles and search similar articles
+  description: Server to store articles and search similar articles.
 basePath: /
 schemes:
   - http
@@ -12,7 +12,7 @@ consumes:
 paths:
   /articles:
     post:
-      summary: Add an article
+      summary: Add an article.
       parameters:
         - in: body
           name: body
@@ -35,7 +35,7 @@ paths:
 
   /articles/{id}:
     get:
-      summary: Get article by id
+      summary: Get article by id.
       parameters:
         - in: path
           name: id
@@ -60,9 +60,11 @@ definitions:
     type: object
     properties:
       code:
+        description: Error code for machine parsing
         type: integer
         format: int64
       message:
+        description: Human-readable error message
         type: string
     required:
       - message
@@ -81,6 +83,7 @@ responses:
           description: Article content
           type: string
         duplicate_article_ids:
+          description: Duplicated articles
           type: array
           items:
             type: integer

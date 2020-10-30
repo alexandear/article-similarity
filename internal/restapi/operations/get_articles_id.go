@@ -35,7 +35,7 @@ func NewGetArticlesID(ctx *middleware.Context, handler GetArticlesIDHandler) *Ge
 
 /*GetArticlesID swagger:route GET /articles/{id} getArticlesId
 
-Get article by id
+Get article by id.
 
 */
 type GetArticlesID struct {
