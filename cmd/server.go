@@ -1,15 +1,11 @@
 package cmd
 
 import (
-	"github.com/go-openapi/loads"
-	"github.com/kelseyhightower/memkv"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	cmder "github.com/yaegashi/cobra-cmder"
 
-	"github.com/devchallenge/article-similarity/internal/handler"
 	"github.com/devchallenge/article-similarity/internal/restapi"
-	"github.com/devchallenge/article-similarity/internal/restapi/operations"
 	"github.com/devchallenge/article-similarity/internal/util"
 )
 
@@ -27,38 +23,16 @@ func (s *AppServer) Cmd() *cobra.Command {
 		Use:   "server",
 		Short: "Start HTTP server",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			swaggerSpec, err := loads.Embedded(restapi.SwaggerJSON, restapi.FlatSwaggerJSON)
-			if err != nil {
-				return errors.Wrap(err, "failed to embedded spec")
-			}
-			cmd.Long = swaggerSpec.Spec().Info.Description
-
-			api := operations.NewArticleSimilarityAPI(swaggerSpec)
-			serv := server{Server: restapi.NewServer(api)}
+			serv, err := restapi.NewArticleServer()
 			defer util.Close(serv)
-
-			store := memkv.New()
-
-			h := handler.New(&store)
-			h.ConfigureHandlers(api)
-
-			serv.ConfigureAPI()
-			if err := serv.Serve(); err != nil {
+			if err != nil {
 				return errors.WithStack(err)
 			}
 
-			return nil
+			return serv.Serve()
 		},
 	}
 	cmd.PersistentFlags().AddFlagSet(s.config.Flags())
 
 	return cmd
-}
-
-type server struct {
-	*restapi.Server
-}
-
-func (s server) Close() error {
-	return s.Shutdown()
 }
