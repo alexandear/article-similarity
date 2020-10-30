@@ -17,7 +17,11 @@ help:
 	@echo '    help               Show this help screen.'
 	@echo '    lint               Run linter.'
 	@echo '    swagger            Generate only swagger code.'
-	@echo '    test               Run tests: unit and integration.'
+	@echo '    test               Run unit tests.'
+	@echo '    test-it            Run integration tests.'
+	@echo '    docker             Build docker image.'
+	@echo '    docker-run         Run docker image.'
+	@echo '    docker-dev         Build build, lint in docker image.'
 	@echo ''
 	@echo 'Targets run by default are: clean format swagger build test'
 	@echo ''
@@ -34,6 +38,10 @@ build:
 test:
 	@echo test
 	@go test -count=1 -v ./...
+
+test-it:
+	@echo test-it
+	@go test -tags=integration -count=1 -v ./test
 
 lint:
 	@echo lint
@@ -64,3 +72,18 @@ swagger:
 	@rm -rf $(SWAGGER_GEN_PATH)/restapi/embedded_spec.go
 	@$(SWAGGER) generate server -f $(SPEC) -t $(SWAGGER_GEN_PATH) --exclude-main --flag-strategy pflag
 
+IMAGE = article-similarity
+
+docker:
+	@echo docker
+	@docker build -t $(IMAGE) -f Dockerfile .
+
+docker-run:
+	@echo docker-run
+	@docker run --rm -p 80:80 $(IMAGE)
+
+IMAGE_DEV = article-similarity-dev
+
+docker-dev:
+	@echo docker-dev
+	@docker build -t $(IMAGE_DEV) -f Dockerfile.build .
