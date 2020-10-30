@@ -38,29 +38,12 @@ func (h *Handler) PostArticles(params operations.PostArticlesParams) middleware.
 		})
 	}
 
-	idContents, err := h.store.GetAll(idKeyPrefix + "*")
-	if err != nil {
-		return operations.NewPostArticlesInternalServerError().WithPayload(&models.Error{
-			Message: swag.String("failed to get contents"),
-			Code:    0,
-		})
-	}
-
-	duplicateIDs := make([]int64, 0, len(idContents))
-	sim := similarity.NewSimilarity()
-
-	for _, idContent := range idContents {
-		if sim.IsSimilar(content, idContent.Value) {
-			duplicateIDs = append(duplicateIDs, int64(keyToID(idContent.Key)))
-		}
-	}
-
 	id := h.nextID()
 	h.store.Set(idKey(id), content)
 
 	return operations.NewPostArticlesOK().WithPayload(&operations.PostArticlesOKBody{
 		Content:             swag.String(content),
-		DuplicateArticleIds: duplicateIDs,
+		DuplicateArticleIds: h.duplicateArticleIDs(id, content),
 		ID:                  swag.Int64(int64(id)),
 	})
 }
@@ -84,8 +67,33 @@ func (h *Handler) GetArticleByID(params operations.GetArticlesIDParams) middlewa
 	return operations.NewGetArticlesIDOK().WithPayload(&operations.GetArticlesIDOKBody{
 		ID:                  swag.Int64(params.ID),
 		Content:             swag.String(content),
-		DuplicateArticleIds: []int64{},
+		DuplicateArticleIds: h.duplicateArticleIDs(int(params.ID), content),
 	})
+}
+
+func (h *Handler) duplicateArticleIDs(id int, content string) []int64 {
+	idContents, err := h.store.GetAll(idKeyPrefix + "*")
+	if err != nil {
+		fmt.Println(errors.Wrap(err, "failed to get all contents"))
+
+		return nil
+	}
+
+	duplicateIDs := make([]int64, 0, len(idContents))
+	sim := similarity.NewSimilarity()
+
+	for _, idContent := range idContents {
+		articleID := keyToID(idContent.Key)
+		if articleID == id {
+			continue
+		}
+
+		if sim.IsSimilar(content, idContent.Value) {
+			duplicateIDs = append(duplicateIDs, int64(articleID))
+		}
+	}
+
+	return duplicateIDs
 }
 
 const (
