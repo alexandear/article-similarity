@@ -33,9 +33,8 @@ func (s *e2eTestSuite) SetupTest() {
 	s.port = s.FreePort()
 	s.Require().NoError(pflag.Set("port", s.port))
 
-	serv, err := restapi.NewArticleServer()
+	serv, err := restapi.NewArticleServer(s.T().Logf, 0.95)
 	s.Require().NoError(err)
-	serv.ConfigureLogger(s.T().Logf)
 	s.server = serv
 
 	go func() {

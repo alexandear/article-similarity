@@ -7,13 +7,14 @@ import (
 
 	"github.com/devchallenge/article-similarity/internal/handler"
 	"github.com/devchallenge/article-similarity/internal/restapi/operations"
+	"github.com/devchallenge/article-similarity/internal/similarity"
 )
 
 type ArticleServer struct {
 	rest *Server
 }
 
-func NewArticleServer() (*ArticleServer, error) {
+func NewArticleServer(logger func(string, ...interface{}), similarityThreshold float64) (*ArticleServer, error) {
 	swaggerSpec, err := loads.Embedded(SwaggerJSON, FlatSwaggerJSON)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to embedded spec")
@@ -26,16 +27,14 @@ func NewArticleServer() (*ArticleServer, error) {
 	}
 
 	store := memkv.New()
+	sim := similarity.NewSimilarity(logger, similarityThreshold)
 
-	h := handler.New(&store)
+	h := handler.New(&store, sim)
 	h.ConfigureHandlers(api)
 	rest.ConfigureAPI()
+	rest.api.Logger = logger
 
 	return server, nil
-}
-
-func (s *ArticleServer) ConfigureLogger(logger func(string, ...interface{})) {
-	s.rest.api.Logger = logger
 }
 
 func (s *ArticleServer) Serve() error {

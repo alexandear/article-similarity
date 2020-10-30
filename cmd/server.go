@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"log"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	cmder "github.com/yaegashi/cobra-cmder"
@@ -23,7 +25,7 @@ func (s *AppServer) Cmd() *cobra.Command {
 		Use:   "server",
 		Short: "Start HTTP server",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			serv, err := restapi.NewArticleServer()
+			serv, err := restapi.NewArticleServer(log.Printf, s.config.SimilarityThreshold)
 			defer util.Close(serv)
 			if err != nil {
 				return errors.WithStack(err)

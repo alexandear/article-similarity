@@ -44,7 +44,7 @@ func TestSimilarity_Similarity(t *testing.T) {
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
-			sim := NewSimilarity()
+			sim := NewSimilarity(func(string, ...interface{}) {}, 0.95)
 
 			res := sim.Similarity(tc.contentA, tc.contentB)
 

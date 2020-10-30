@@ -7,15 +7,16 @@ import (
 )
 
 type Similarity struct {
+	Logger    func(format string, v ...interface{})
 	Threshold float64
 }
 
-const defaultSimilarityThreshold = 0.95
+func NewSimilarity(logger func(format string, v ...interface{}), threshold float64) *Similarity {
+	logger("Use similarity threshold: %f", threshold)
 
-// NewSimilarity returns Similarity with 0.95 threshold.
-func NewSimilarity() *Similarity {
 	return &Similarity{
-		Threshold: defaultSimilarityThreshold,
+		Logger:    logger,
+		Threshold: threshold,
 	}
 }
 

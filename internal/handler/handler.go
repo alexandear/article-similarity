@@ -16,11 +16,13 @@ import (
 
 type Handler struct {
 	store *memkv.Store
+	sim   *similarity.Similarity
 }
 
-func New(store *memkv.Store) *Handler {
+func New(store *memkv.Store, sim *similarity.Similarity) *Handler {
 	return &Handler{
 		store: store,
+		sim:   sim,
 	}
 }
 
@@ -80,7 +82,6 @@ func (h *Handler) duplicateArticleIDs(id int, content string) []int64 {
 	}
 
 	duplicateIDs := make([]int64, 0, len(idContents))
-	sim := similarity.NewSimilarity()
 
 	for _, idContent := range idContents {
 		articleID := keyToID(idContent.Key)
@@ -88,7 +89,7 @@ func (h *Handler) duplicateArticleIDs(id int, content string) []int64 {
 			continue
 		}
 
-		if sim.IsSimilar(content, idContent.Value) {
+		if h.sim.IsSimilar(content, idContent.Value) {
 			duplicateIDs = append(duplicateIDs, int64(articleID))
 		}
 	}
