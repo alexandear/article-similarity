@@ -24,8 +24,11 @@ jobs:
     - name: Build
       run: make build
 
-    - name: Test
+    - name: Test Unit
       run: make test
+
+    - name: Test Integration
+      run: make test-it
 
     - name: Lint
       run: make lint
