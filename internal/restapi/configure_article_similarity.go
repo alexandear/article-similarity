@@ -4,10 +4,10 @@ package restapi
 
 import (
 	"crypto/tls"
+	"log"
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/devchallenge/article-similarity/internal/restapi/operations"
 )
@@ -15,36 +15,15 @@ import (
 //go:generate swagger generate server --target ../../internal --name ArticleSimilarityAPI --spec ../../api/spec.yaml --principal interface{} --exclude-main
 
 func configureFlags(api *operations.ArticleSimilarityAPI) {
-	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
 }
 
 func configureAPI(api *operations.ArticleSimilarityAPI) http.Handler {
-	// configure the api here
 	api.ServeError = ServeError
-
-	// Set your custom logger if needed. Default one is log.Printf
-	// Expected interface func(string, ...interface{})
-	//
-	// Example:
-	// api.Logger = log.Printf
-
-	api.UseSwaggerUI()
-	// To continue using redoc as your UI, uncomment the following line
-	// api.UseRedoc()
-
+	api.Logger = log.Printf
+	api.UseRedoc()
 	api.JSONConsumer = runtime.JSONConsumer()
-
 	api.JSONProducer = runtime.JSONProducer()
-
-	if api.PostArticlesHandler == nil {
-		api.PostArticlesHandler = operations.PostArticlesHandlerFunc(
-			func(params operations.PostArticlesParams) middleware.Responder {
-				return middleware.NotImplemented("operation operations.PostArticles has not yet been implemented")
-			})
-	}
-
 	api.PreServerShutdown = func() {}
-
 	api.ServerShutdown = func() {}
 
 	return setupGlobalMiddleware(api.Serve(setupMiddlewares))
