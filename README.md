@@ -64,3 +64,17 @@ Run end-to-end tests:
 ```shell
 make test-it
 ```
+
+### Docker
+
+Build docker image `article-similarity:latest`:
+
+```shell
+make docker
+```
+
+Build, run linter and tests in dev docker image `article-similarity-dev:latest`:
+
+```shell
+make docker-dev
+```
