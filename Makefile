@@ -17,7 +17,7 @@ help:
 	@echo '    help               Show this help screen.'
 	@echo '    lint               Run linter.'
 	@echo '    swagger            Generate only swagger code.'
-	@echo '    test               Run tests.'
+	@echo '    test               Run tests: unit and integration.'
 	@echo ''
 	@echo 'Targets run by default are: clean format swagger build test'
 	@echo ''
@@ -30,6 +30,7 @@ build:
 	@echo build
 	@go build -o $(GOBIN)/article-similarity
 
+.PHONY: test
 test:
 	@echo test
 	@go test -count=1 -v ./...

@@ -34,6 +34,10 @@ func NewArticleServer() (*ArticleServer, error) {
 	return server, nil
 }
 
+func (s *ArticleServer) ConfigureLogger(logger func(string, ...interface{})) {
+	s.rest.api.Logger = logger
+}
+
 func (s *ArticleServer) Serve() error {
 	return s.rest.Serve()
 }
