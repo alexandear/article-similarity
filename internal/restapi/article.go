@@ -4,11 +4,9 @@ import (
 	"github.com/go-openapi/loads"
 	"github.com/kelseyhightower/memkv"
 	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
 
 	"github.com/devchallenge/article-similarity/internal/handler"
 	"github.com/devchallenge/article-similarity/internal/restapi/operations"
-	"github.com/devchallenge/article-similarity/internal/util"
 )
 
 type ArticleServer struct {
@@ -42,14 +40,4 @@ func (s *ArticleServer) Serve() error {
 
 func (s *ArticleServer) Close() error {
 	return s.rest.Shutdown()
-}
-
-func RunEArticleServer(cmd *cobra.Command, args []string) error {
-	serv, err := NewArticleServer()
-	if err != nil {
-		return errors.WithStack(err)
-	}
-	defer util.Close(serv)
-
-	return serv.Serve()
 }
