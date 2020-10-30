@@ -42,6 +42,9 @@ func NewArticleSimilarityAPIAPI(spec *loads.Document) *ArticleSimilarityAPIAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
+		GetArticlesIDHandler: GetArticlesIDHandlerFunc(func(params GetArticlesIDParams) middleware.Responder {
+			return middleware.NotImplemented("operation GetArticlesID has not yet been implemented")
+		}),
 		PostArticlesHandler: PostArticlesHandlerFunc(func(params PostArticlesParams) middleware.Responder {
 			return middleware.NotImplemented("operation PostArticles has not yet been implemented")
 		}),
@@ -79,6 +82,8 @@ type ArticleSimilarityAPIAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
+	// GetArticlesIDHandler sets the operation handler for the get articles ID operation
+	GetArticlesIDHandler GetArticlesIDHandler
 	// PostArticlesHandler sets the operation handler for the post articles operation
 	PostArticlesHandler PostArticlesHandler
 	// ServeError is called when an error is received, there is a default handler
@@ -157,6 +162,9 @@ func (o *ArticleSimilarityAPIAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
+	if o.GetArticlesIDHandler == nil {
+		unregistered = append(unregistered, "GetArticlesIDHandler")
+	}
 	if o.PostArticlesHandler == nil {
 		unregistered = append(unregistered, "PostArticlesHandler")
 	}
@@ -248,6 +256,10 @@ func (o *ArticleSimilarityAPIAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/articles/{id}"] = NewGetArticlesID(o.context, o.GetArticlesIDHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

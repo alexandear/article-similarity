@@ -27,27 +27,31 @@ paths:
           required: true
       responses:
         200:
-          description: OK
-          schema:
-            type: object
-            properties:
-              id:
-                description: Article id
-                type: integer
-                format: int64
-              content:
-                description: Article content
-                type: string
-              duplicate_article_ids:
-                type: array
-                items:
-                  type: integer
-            required:
-              - id
-              - content
-              - duplicate_article_ids
+          $ref: "#/responses/ArticleOk"
         400:
           $ref: "#/responses/InvalidArgument"
+        500:
+          $ref: "#/responses/ServerError"
+
+  /articles/{id}:
+    get:
+      summary: Get article by id
+      parameters:
+        - in: path
+          name: id
+          description: Article id
+          type: integer
+          format: int64
+          required: true
+      responses:
+        200:
+          $ref: "#/responses/ArticleOk"
+        400:
+          $ref: "#/responses/InvalidArgument"
+        404:
+          description: Article not found
+          schema:
+            $ref: '#/definitions/Error'
         500:
           $ref: "#/responses/ServerError"
 
@@ -64,10 +68,32 @@ definitions:
       - message
 
 responses:
+  ArticleOk:
+    description: OK
+    schema:
+      type: object
+      properties:
+        id:
+          description: Article id
+          type: integer
+          format: int64
+        content:
+          description: Article content
+          type: string
+        duplicate_article_ids:
+          type: array
+          items:
+            type: integer
+      required:
+        - id
+        - content
+        - duplicate_article_ids
+
   InvalidArgument:
     description: Invalid arguments
     schema:
       $ref: '#/definitions/Error'
+
   ServerError:
     description: Internal server error
     schema:

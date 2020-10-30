@@ -56,35 +56,42 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "OK",
-            "schema": {
-              "type": "object",
-              "required": [
-                "id",
-                "content",
-                "duplicate_article_ids"
-              ],
-              "properties": {
-                "content": {
-                  "description": "Article content",
-                  "type": "string"
-                },
-                "duplicate_article_ids": {
-                  "type": "array",
-                  "items": {
-                    "type": "integer"
-                  }
-                },
-                "id": {
-                  "description": "Article id",
-                  "type": "integer",
-                  "format": "int64"
-                }
-              }
-            }
+            "$ref": "#/responses/ArticleOk"
           },
           "400": {
             "$ref": "#/responses/InvalidArgument"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/articles/{id}": {
+      "get": {
+        "summary": "Get article by id",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "Article id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/ArticleOk"
+          },
+          "400": {
+            "$ref": "#/responses/InvalidArgument"
+          },
+          "404": {
+            "description": "Article not found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           },
           "500": {
             "$ref": "#/responses/ServerError"
@@ -111,6 +118,34 @@ func init() {
     }
   },
   "responses": {
+    "ArticleOk": {
+      "description": "OK",
+      "schema": {
+        "type": "object",
+        "required": [
+          "id",
+          "content",
+          "duplicate_article_ids"
+        ],
+        "properties": {
+          "content": {
+            "description": "Article content",
+            "type": "string"
+          },
+          "duplicate_article_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "id": {
+            "description": "Article id",
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      }
+    },
     "InvalidArgument": {
       "description": "Invalid arguments",
       "schema": {
@@ -205,6 +240,69 @@ func init() {
           }
         }
       }
+    },
+    "/articles/{id}": {
+      "get": {
+        "summary": "Get article by id",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "Article id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "required": [
+                "id",
+                "content",
+                "duplicate_article_ids"
+              ],
+              "properties": {
+                "content": {
+                  "description": "Article content",
+                  "type": "string"
+                },
+                "duplicate_article_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                "id": {
+                  "description": "Article id",
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid arguments",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Article not found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -225,6 +323,34 @@ func init() {
     }
   },
   "responses": {
+    "ArticleOk": {
+      "description": "OK",
+      "schema": {
+        "type": "object",
+        "required": [
+          "id",
+          "content",
+          "duplicate_article_ids"
+        ],
+        "properties": {
+          "content": {
+            "description": "Article content",
+            "type": "string"
+          },
+          "duplicate_article_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "id": {
+            "description": "Article id",
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      }
+    },
     "InvalidArgument": {
       "description": "Invalid arguments",
       "schema": {

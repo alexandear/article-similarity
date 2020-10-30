@@ -26,6 +26,7 @@ func New(store *memkv.Store) *Handler {
 
 func (h *Handler) ConfigureHandlers(api *operations.ArticleSimilarityAPIAPI) {
 	api.PostArticlesHandler = operations.PostArticlesHandlerFunc(h.PostArticles)
+	api.GetArticlesIDHandler = operations.GetArticlesIDHandlerFunc(h.GetArticleByID)
 }
 
 func (h *Handler) PostArticles(params operations.PostArticlesParams) middleware.Responder {
@@ -61,6 +62,29 @@ func (h *Handler) PostArticles(params operations.PostArticlesParams) middleware.
 		Content:             swag.String(content),
 		DuplicateArticleIds: duplicateIDs,
 		ID:                  swag.Int64(int64(id)),
+	})
+}
+
+func (h *Handler) GetArticleByID(params operations.GetArticlesIDParams) middleware.Responder {
+	content, err := h.store.GetValue(idKey(int(params.ID)))
+
+	switch {
+	case err == nil:
+	case errors.As(err, &memkv.ErrNotExist):
+		return operations.NewGetArticlesIDNotFound()
+	default:
+		fmt.Println(errors.Wrap(err, "failed to get content"))
+
+		return operations.NewGetArticlesIDInternalServerError().WithPayload(&models.Error{
+			Code:    0,
+			Message: swag.String("failed to get article"),
+		})
+	}
+
+	return operations.NewGetArticlesIDOK().WithPayload(&operations.GetArticlesIDOKBody{
+		ID:                  swag.Int64(params.ID),
+		Content:             swag.String(content),
+		DuplicateArticleIds: []int64{},
 	})
 }
 
