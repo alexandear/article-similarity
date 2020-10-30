@@ -28,9 +28,29 @@ applied content preprocessing:
 
 Algorithm works for English content only.
 
-## Tests
+## Development
 
-There are unit and end-to-end tests. Unit and integration tests placed in `_test.go` files, 
+> Prerequisites: install `go@1.15` compiler and `make`.
+
+### Code style
+
+Consistent code style enforced by `gofmt`  and `golangci-lint` linters.
+
+Format code:
+
+```shell
+make format
+```
+
+Run linter:
+
+```shell
+make lint
+```
+
+### Tests
+
+There are unit and end-to-end tests. Unit and integration tests placed in `_test.go` files,
 end-to-end in `test` directory.
 
 Run unit tests:
@@ -44,5 +64,3 @@ Run end-to-end tests:
 ```shell
 make test-it
 ```
-
-To run tests _`go` and `make` must be installed._
