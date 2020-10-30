@@ -2,11 +2,21 @@
 
 HTTP server to store and search similar articles.
 
-## Documentation
+## API docs
 
-Converted from swagger spec markdown docs in the [API](./docs/api.md).
+API's description is in the [docs/api.md](./docs/api.md) file.
 
-Also, API description available when service running via http://localhost:80/docs.
+Additionally, server provides docs in HTML format via http://localhost:80/docs.
+
+## Algorithm
+
+To find similarity between the content of articles used Levenshtein algorithm for words. Before Levenshtein algorithm is 
+applied content preprocessing:
+- remove articles `a, an, the` and punctuation `.,!?-`;
+- content separated to word via whitespace characters ` \t\n\r`;
+- text is lower-cased.
+
+Algorithm works for English content only.
 
 ## Tests
 
