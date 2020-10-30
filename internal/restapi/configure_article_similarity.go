@@ -14,11 +14,11 @@ import (
 
 //go:generate swagger generate server --target ../../internal --name ArticleSimilarityAPI --spec ../../api/spec.yaml --principal interface{} --exclude-main
 
-func configureFlags(api *operations.ArticleSimilarityAPIAPI) {
+func configureFlags(api *operations.ArticleSimilarityAPI) {
 	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
 }
 
-func configureAPI(api *operations.ArticleSimilarityAPIAPI) http.Handler {
+func configureAPI(api *operations.ArticleSimilarityAPI) http.Handler {
 	// configure the api here
 	api.ServeError = ServeError
 

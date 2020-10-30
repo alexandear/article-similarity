@@ -33,7 +33,7 @@ func (s *AppServer) Cmd() *cobra.Command {
 			}
 			cmd.Long = swaggerSpec.Spec().Info.Description
 
-			api := operations.NewArticleSimilarityAPIAPI(swaggerSpec)
+			api := operations.NewArticleSimilarityAPI(swaggerSpec)
 			serv := server{Server: restapi.NewServer(api)}
 			defer util.Close(serv)
 

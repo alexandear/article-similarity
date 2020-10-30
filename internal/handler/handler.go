@@ -24,7 +24,7 @@ func New(store *memkv.Store) *Handler {
 	}
 }
 
-func (h *Handler) ConfigureHandlers(api *operations.ArticleSimilarityAPIAPI) {
+func (h *Handler) ConfigureHandlers(api *operations.ArticleSimilarityAPI) {
 	api.PostArticlesHandler = operations.PostArticlesHandlerFunc(h.PostArticles)
 	api.GetArticlesIDHandler = operations.GetArticlesIDHandlerFunc(h.GetArticleByID)
 }

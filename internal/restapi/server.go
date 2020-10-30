@@ -126,8 +126,8 @@ func intEnvOverride(orig int, def int, keys ...string) int {
 	return orig
 }
 
-// NewServer creates a new api article similarity API server but does not configure it
-func NewServer(api *operations.ArticleSimilarityAPIAPI) *Server {
+// NewServer creates a new api article similarity server but does not configure it
+func NewServer(api *operations.ArticleSimilarityAPI) *Server {
 	s := new(Server)
 
 	s.EnabledListeners = enabledListeners
@@ -170,7 +170,7 @@ func (s *Server) ConfigureFlags() {
 	}
 }
 
-// Server for the article similarity API API
+// Server for the article similarity API
 type Server struct {
 	EnabledListeners []string
 	CleanupTimeout   time.Duration
@@ -199,7 +199,7 @@ type Server struct {
 	TLSWriteTimeout   time.Duration
 	httpsServerL      net.Listener
 
-	api          *operations.ArticleSimilarityAPIAPI
+	api          *operations.ArticleSimilarityAPI
 	handler      http.Handler
 	hasListeners bool
 	shutdown     chan struct{}
@@ -229,7 +229,7 @@ func (s *Server) Fatalf(f string, args ...interface{}) {
 }
 
 // SetAPI configures the server with the specified API. Needs to be called before Serve
-func (s *Server) SetAPI(api *operations.ArticleSimilarityAPIAPI) {
+func (s *Server) SetAPI(api *operations.ArticleSimilarityAPI) {
 	if api == nil {
 		s.api = nil
 		s.handler = nil
@@ -290,13 +290,13 @@ func (s *Server) Serve() (err error) {
 
 		servers = append(servers, domainSocket)
 		wg.Add(1)
-		s.Logf("Serving article similarity API at unix://%s", s.SocketPath)
+		s.Logf("Serving article similarity at unix://%s", s.SocketPath)
 		go func(l net.Listener) {
 			defer wg.Done()
 			if err := domainSocket.Serve(l); err != nil && err != http.ErrServerClosed {
 				s.Fatalf("%v", err)
 			}
-			s.Logf("Stopped serving article similarity API at unix://%s", s.SocketPath)
+			s.Logf("Stopped serving article similarity at unix://%s", s.SocketPath)
 		}(s.domainSocketL)
 	}
 
@@ -320,13 +320,13 @@ func (s *Server) Serve() (err error) {
 
 		servers = append(servers, httpServer)
 		wg.Add(1)
-		s.Logf("Serving article similarity API at http://%s", s.httpServerL.Addr())
+		s.Logf("Serving article similarity at http://%s", s.httpServerL.Addr())
 		go func(l net.Listener) {
 			defer wg.Done()
 			if err := httpServer.Serve(l); err != nil && err != http.ErrServerClosed {
 				s.Fatalf("%v", err)
 			}
-			s.Logf("Stopped serving article similarity API at http://%s", l.Addr())
+			s.Logf("Stopped serving article similarity at http://%s", l.Addr())
 		}(s.httpServerL)
 	}
 
@@ -416,13 +416,13 @@ func (s *Server) Serve() (err error) {
 
 		servers = append(servers, httpsServer)
 		wg.Add(1)
-		s.Logf("Serving article similarity API at https://%s", s.httpsServerL.Addr())
+		s.Logf("Serving article similarity at https://%s", s.httpsServerL.Addr())
 		go func(l net.Listener) {
 			defer wg.Done()
 			if err := httpsServer.Serve(l); err != nil && err != http.ErrServerClosed {
 				s.Fatalf("%v", err)
 			}
-			s.Logf("Stopped serving article similarity API at https://%s", l.Addr())
+			s.Logf("Stopped serving article similarity at https://%s", l.Addr())
 		}(tls.NewListener(s.httpsServerL, httpsServer.TLSConfig))
 	}
 

@@ -27,7 +27,7 @@ func init() {
   "swagger": "2.0",
   "info": {
     "description": "Server to store articles and search similar articles",
-    "title": "Article similarity API",
+    "title": "Article similarity",
     "version": "1.0.0"
   },
   "basePath": "/",
@@ -170,7 +170,7 @@ func init() {
   "swagger": "2.0",
   "info": {
     "description": "Server to store articles and search similar articles",
-    "title": "Article similarity API",
+    "title": "Article similarity",
     "version": "1.0.0"
   },
   "basePath": "/",
