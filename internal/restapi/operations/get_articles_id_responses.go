@@ -25,7 +25,7 @@ type GetArticlesIDOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *GetArticlesIDOKBody `json:"body,omitempty"`
+	Payload *models.Article `json:"body,omitempty"`
 }
 
 // NewGetArticlesIDOK creates GetArticlesIDOK with default headers values
@@ -35,13 +35,13 @@ func NewGetArticlesIDOK() *GetArticlesIDOK {
 }
 
 // WithPayload adds the payload to the get articles Id o k response
-func (o *GetArticlesIDOK) WithPayload(payload *GetArticlesIDOKBody) *GetArticlesIDOK {
+func (o *GetArticlesIDOK) WithPayload(payload *models.Article) *GetArticlesIDOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get articles Id o k response
-func (o *GetArticlesIDOK) SetPayload(payload *GetArticlesIDOKBody) {
+func (o *GetArticlesIDOK) SetPayload(payload *models.Article) {
 	o.Payload = payload
 }
 

@@ -55,8 +55,11 @@ func init() {
           }
         ],
         "responses": {
-          "200": {
-            "$ref": "#/responses/ArticleOk"
+          "201": {
+            "description": "Articled added.",
+            "schema": {
+              "$ref": "#/definitions/Article"
+            }
           },
           "400": {
             "$ref": "#/responses/InvalidArgument"
@@ -101,6 +104,32 @@ func init() {
     }
   },
   "definitions": {
+    "Article": {
+      "type": "object",
+      "required": [
+        "id",
+        "content",
+        "duplicate_article_ids"
+      ],
+      "properties": {
+        "content": {
+          "description": "Article content",
+          "type": "string"
+        },
+        "duplicate_article_ids": {
+          "description": "Duplicated articles",
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "id": {
+          "description": "Article id",
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
     "Error": {
       "type": "object",
       "required": [
@@ -108,12 +137,12 @@ func init() {
       ],
       "properties": {
         "code": {
-          "description": "Error code for machine parsing.",
+          "description": "Error code for machine parsing",
           "type": "integer",
           "format": "int64"
         },
         "message": {
-          "description": "Human-readable error message.",
+          "description": "Human-readable error message",
           "type": "string"
         }
       }
@@ -123,29 +152,7 @@ func init() {
     "ArticleOk": {
       "description": "OK",
       "schema": {
-        "type": "object",
-        "required": [
-          "id",
-          "content",
-          "duplicate_article_ids"
-        ],
-        "properties": {
-          "content": {
-            "description": "Article content",
-            "type": "string"
-          },
-          "duplicate_article_ids": {
-            "type": "array",
-            "items": {
-              "type": "integer"
-            }
-          },
-          "id": {
-            "description": "Article id",
-            "type": "integer",
-            "format": "int64"
-          }
-        }
+        "$ref": "#/definitions/Article"
       }
     },
     "InvalidArgument": {
@@ -200,32 +207,10 @@ func init() {
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK",
+          "201": {
+            "description": "Articled added.",
             "schema": {
-              "type": "object",
-              "required": [
-                "id",
-                "content",
-                "duplicate_article_ids"
-              ],
-              "properties": {
-                "content": {
-                  "description": "Article content",
-                  "type": "string"
-                },
-                "duplicate_article_ids": {
-                  "type": "array",
-                  "items": {
-                    "type": "integer"
-                  }
-                },
-                "id": {
-                  "description": "Article id",
-                  "type": "integer",
-                  "format": "int64"
-                }
-              }
+              "$ref": "#/definitions/Article"
             }
           },
           "400": {
@@ -260,29 +245,7 @@ func init() {
           "200": {
             "description": "OK",
             "schema": {
-              "type": "object",
-              "required": [
-                "id",
-                "content",
-                "duplicate_article_ids"
-              ],
-              "properties": {
-                "content": {
-                  "description": "Article content",
-                  "type": "string"
-                },
-                "duplicate_article_ids": {
-                  "type": "array",
-                  "items": {
-                    "type": "integer"
-                  }
-                },
-                "id": {
-                  "description": "Article id",
-                  "type": "integer",
-                  "format": "int64"
-                }
-              }
+              "$ref": "#/definitions/Article"
             }
           },
           "400": {
@@ -308,6 +271,32 @@ func init() {
     }
   },
   "definitions": {
+    "Article": {
+      "type": "object",
+      "required": [
+        "id",
+        "content",
+        "duplicate_article_ids"
+      ],
+      "properties": {
+        "content": {
+          "description": "Article content",
+          "type": "string"
+        },
+        "duplicate_article_ids": {
+          "description": "Duplicated articles",
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "id": {
+          "description": "Article id",
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
     "Error": {
       "type": "object",
       "required": [
@@ -315,12 +304,12 @@ func init() {
       ],
       "properties": {
         "code": {
-          "description": "Error code for machine parsing.",
+          "description": "Error code for machine parsing",
           "type": "integer",
           "format": "int64"
         },
         "message": {
-          "description": "Human-readable error message.",
+          "description": "Human-readable error message",
           "type": "string"
         }
       }
@@ -330,29 +319,7 @@ func init() {
     "ArticleOk": {
       "description": "OK",
       "schema": {
-        "type": "object",
-        "required": [
-          "id",
-          "content",
-          "duplicate_article_ids"
-        ],
-        "properties": {
-          "content": {
-            "description": "Article content",
-            "type": "string"
-          },
-          "duplicate_article_ids": {
-            "type": "array",
-            "items": {
-              "type": "integer"
-            }
-          },
-          "id": {
-            "description": "Article id",
-            "type": "integer",
-            "format": "int64"
-          }
-        }
+        "$ref": "#/definitions/Article"
       }
     },
     "InvalidArgument": {

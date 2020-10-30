@@ -43,7 +43,7 @@ func (h *Handler) PostArticles(params operations.PostArticlesParams) middleware.
 	id := h.nextID()
 	h.store.Set(idKey(id), content)
 
-	return operations.NewPostArticlesOK().WithPayload(&operations.PostArticlesOKBody{
+	return operations.NewPostArticlesCreated().WithPayload(&models.Article{
 		Content:             swag.String(content),
 		DuplicateArticleIds: h.duplicateArticleIDs(id, content),
 		ID:                  swag.Int64(int64(id)),
@@ -66,7 +66,7 @@ func (h *Handler) GetArticleByID(params operations.GetArticlesIDParams) middlewa
 		})
 	}
 
-	return operations.NewGetArticlesIDOK().WithPayload(&operations.GetArticlesIDOKBody{
+	return operations.NewGetArticlesIDOK().WithPayload(&models.Article{
 		ID:                  swag.Int64(params.ID),
 		Content:             swag.String(content),
 		DuplicateArticleIds: h.duplicateArticleIDs(int(params.ID), content),

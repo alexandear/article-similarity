@@ -8,11 +8,7 @@ package operations
 import (
 	"net/http"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // GetArticlesIDHandlerFunc turns a function with the right signature into a get articles ID handler
@@ -59,89 +55,4 @@ func (o *GetArticlesID) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
-}
-
-// GetArticlesIDOKBody get articles ID o k body
-//
-// swagger:model GetArticlesIDOKBody
-type GetArticlesIDOKBody struct {
-
-	// Article content
-	// Required: true
-	Content *string `json:"content"`
-
-	// duplicate article ids
-	// Required: true
-	DuplicateArticleIds []int64 `json:"duplicate_article_ids"`
-
-	// Article id
-	// Required: true
-	ID *int64 `json:"id"`
-}
-
-// Validate validates this get articles ID o k body
-func (o *GetArticlesIDOKBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateContent(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateDuplicateArticleIds(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *GetArticlesIDOKBody) validateContent(formats strfmt.Registry) error {
-
-	if err := validate.Required("getArticlesIdOK"+"."+"content", "body", o.Content); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *GetArticlesIDOKBody) validateDuplicateArticleIds(formats strfmt.Registry) error {
-
-	if err := validate.Required("getArticlesIdOK"+"."+"duplicate_article_ids", "body", o.DuplicateArticleIds); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *GetArticlesIDOKBody) validateID(formats strfmt.Registry) error {
-
-	if err := validate.Required("getArticlesIdOK"+"."+"id", "body", o.ID); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetArticlesIDOKBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetArticlesIDOKBody) UnmarshalBinary(b []byte) error {
-	var res GetArticlesIDOKBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
 }

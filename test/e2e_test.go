@@ -52,15 +52,15 @@ func (s *e2eTestSuite) Test_EndToEnd_AddArticle() {
 	s.Run("add two duplicates and one unique", func() {
 		reqFirst := s.NewRequest(http.MethodPost, "/articles", `{"content":"hello world"}`)
 		respFirst := s.DoRequest(reqFirst)
-		s.EqualResponse(http.StatusOK, `{"content":"hello world","duplicate_article_ids":[],"id":0}`, respFirst)
+		s.EqualResponse(http.StatusCreated, `{"content":"hello world","duplicate_article_ids":[],"id":0}`, respFirst)
 
 		reqDuplicate := s.NewRequest(http.MethodPost, "/articles", `{"content":"Hello a world!"}`)
 		respDuplicate := s.DoRequest(reqDuplicate)
-		s.EqualResponse(http.StatusOK, `{"content":"Hello a world!","duplicate_article_ids":[0],"id":1}`, respDuplicate)
+		s.EqualResponse(http.StatusCreated, `{"content":"Hello a world!","duplicate_article_ids":[0],"id":1}`, respDuplicate)
 
 		reqUnique := s.NewRequest(http.MethodPost, "/articles", `{"content":"unique"}`)
 		respUnique := s.DoRequest(reqUnique)
-		s.EqualResponse(http.StatusOK, `{"content":"unique","duplicate_article_ids":[],"id":2}`, respUnique)
+		s.EqualResponse(http.StatusCreated, `{"content":"unique","duplicate_article_ids":[],"id":2}`, respUnique)
 	})
 }
 
@@ -69,12 +69,12 @@ func (s *e2eTestSuite) Test_EndToEnd_GetArticleByID() {
 		{
 			req := s.NewRequest(http.MethodPost, "/articles", `{"content":"Get article by id."}`)
 			resp := s.DoRequest(req)
-			s.EqualResponse(http.StatusOK, `{"content":"Get article by id.","duplicate_article_ids":[],"id":0}`, resp)
+			s.EqualResponse(http.StatusCreated, `{"content":"Get article by id.","duplicate_article_ids":[],"id":0}`, resp)
 		}
 		{
 			req := s.NewRequest(http.MethodPost, "/articles", `{"content":"Get the article by an id."}`)
 			resp := s.DoRequest(req)
-			s.EqualResponse(http.StatusOK, `{"content":"Get the article by an id.","duplicate_article_ids":[0],"id":1}`, resp)
+			s.EqualResponse(http.StatusCreated, `{"content":"Get the article by an id.","duplicate_article_ids":[0],"id":1}`, resp)
 		}
 
 		reqGet := s.NewRequest(http.MethodGet, "/articles/0", "")

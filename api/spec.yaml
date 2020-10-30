@@ -26,8 +26,10 @@ paths:
                 type: string
           required: true
       responses:
-        200:
-          $ref: "#/responses/ArticleOk"
+        201:
+          description: Articled added.
+          schema:
+            $ref: "#/definitions/Article"
         400:
           $ref: "#/responses/InvalidArgument"
         500:
@@ -69,28 +71,31 @@ definitions:
     required:
       - message
 
+  Article:
+    type: object
+    properties:
+      id:
+        description: Article id
+        type: integer
+        format: int64
+      content:
+        description: Article content
+        type: string
+      duplicate_article_ids:
+        description: Duplicated articles
+        type: array
+        items:
+          type: integer
+    required:
+      - id
+      - content
+      - duplicate_article_ids
+
 responses:
   ArticleOk:
     description: OK
     schema:
-      type: object
-      properties:
-        id:
-          description: Article id
-          type: integer
-          format: int64
-        content:
-          description: Article content
-          type: string
-        duplicate_article_ids:
-          description: Duplicated articles
-          type: array
-          items:
-            type: integer
-      required:
-        - id
-        - content
-        - duplicate_article_ids
+      $ref: "#/definitions/Article"
 
   InvalidArgument:
     description: Invalid arguments

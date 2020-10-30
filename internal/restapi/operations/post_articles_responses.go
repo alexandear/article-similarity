@@ -13,42 +13,42 @@ import (
 	"github.com/devchallenge/article-similarity/internal/models"
 )
 
-// PostArticlesOKCode is the HTTP code returned for type PostArticlesOK
-const PostArticlesOKCode int = 200
+// PostArticlesCreatedCode is the HTTP code returned for type PostArticlesCreated
+const PostArticlesCreatedCode int = 201
 
-/*PostArticlesOK OK
+/*PostArticlesCreated Articled added.
 
-swagger:response postArticlesOK
+swagger:response postArticlesCreated
 */
-type PostArticlesOK struct {
+type PostArticlesCreated struct {
 
 	/*
 	  In: Body
 	*/
-	Payload *PostArticlesOKBody `json:"body,omitempty"`
+	Payload *models.Article `json:"body,omitempty"`
 }
 
-// NewPostArticlesOK creates PostArticlesOK with default headers values
-func NewPostArticlesOK() *PostArticlesOK {
+// NewPostArticlesCreated creates PostArticlesCreated with default headers values
+func NewPostArticlesCreated() *PostArticlesCreated {
 
-	return &PostArticlesOK{}
+	return &PostArticlesCreated{}
 }
 
-// WithPayload adds the payload to the post articles o k response
-func (o *PostArticlesOK) WithPayload(payload *PostArticlesOKBody) *PostArticlesOK {
+// WithPayload adds the payload to the post articles created response
+func (o *PostArticlesCreated) WithPayload(payload *models.Article) *PostArticlesCreated {
 	o.Payload = payload
 	return o
 }
 
-// SetPayload sets the payload to the post articles o k response
-func (o *PostArticlesOK) SetPayload(payload *PostArticlesOKBody) {
+// SetPayload sets the payload to the post articles created response
+func (o *PostArticlesCreated) SetPayload(payload *models.Article) {
 	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *PostArticlesOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *PostArticlesCreated) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(200)
+	rw.WriteHeader(201)
 	if o.Payload != nil {
 		payload := o.Payload
 		if err := producer.Produce(rw, payload); err != nil {
