@@ -16,10 +16,8 @@ require (
 	github.com/hashicorp/go-multierror v1.0.0
 	github.com/kelseyhightower/memkv v0.1.1
 	github.com/pkg/errors v0.9.1
-	github.com/spf13/cobra v1.1.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.6.1
-	github.com/yaegashi/cobra-cmder v0.0.1
 	go.mongodb.org/mongo-driver v1.3.5
 	golang.org/x/net v0.0.0-20200822124328-c89045814202
 )

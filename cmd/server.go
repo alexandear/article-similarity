@@ -4,40 +4,33 @@ import (
 	"log"
 
 	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
-	cmder "github.com/yaegashi/cobra-cmder"
+	"github.com/spf13/pflag"
 
 	"github.com/devchallenge/article-similarity/internal/restapi"
 	"github.com/devchallenge/article-similarity/internal/util"
-	utilcmd "github.com/devchallenge/article-similarity/internal/util/cmd"
+	"github.com/devchallenge/article-similarity/internal/util/cmd"
 )
 
-type AppServer struct {
-	*App
-	config Config
-}
-
-func (a *App) AppServer() cmder.Cmder {
-	return &AppServer{App: a}
-}
-
-func (s *AppServer) Cmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "server",
-		Short: "Start HTTP server",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			utilcmd.BindEnv(cmd)
-
-			serv, err := restapi.NewArticleServer(log.Printf, s.config.MongoHost, s.config.SimilarityThreshold)
-			if err != nil {
-				return errors.WithStack(err)
-			}
-			defer util.Close(serv)
-
-			return serv.Serve()
-		},
+func InitFlags(config *Config) {
+	if err := cmd.BindEnv(pflag.CommandLine); err != nil {
+		panic(err)
 	}
-	cmd.PersistentFlags().AddFlagSet(s.config.Flags())
 
-	return cmd
+	config.InitFlags()
+
+	pflag.Parse()
+}
+
+func ExecuteServer() error {
+	config := &Config{}
+
+	InitFlags(config)
+
+	serv, err := restapi.NewArticleServer(log.Printf, config.MongoHost, config.SimilarityThreshold)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	defer util.Close(serv)
+
+	return serv.Serve()
 }

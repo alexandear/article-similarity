@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
 
@@ -14,13 +13,7 @@ import (
 // and "." into "_".
 //
 // Value set via flag has priority over value set via env variable.
-func BindEnv(cmd *cobra.Command) {
-	if err := BindEnvToFlagSet(cmd.Flags()); err != nil {
-		panic(err)
-	}
-}
-
-func BindEnvToFlagSet(fs *pflag.FlagSet) error {
+func BindEnv(fs *pflag.FlagSet) error {
 	set := make(map[string]bool)
 
 	fs.Visit(func(f *pflag.Flag) {

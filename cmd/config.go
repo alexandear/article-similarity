@@ -13,12 +13,8 @@ type Config struct {
 	MongoHost           string
 }
 
-func (c *Config) Flags() *pflag.FlagSet {
-	flags := pflag.NewFlagSet("config", pflag.PanicOnError)
-
-	flags.Float64Var(&c.SimilarityThreshold, "similarity_threshold", defaultSimilarityThreshold,
+func (c *Config) InitFlags() {
+	pflag.Float64Var(&c.SimilarityThreshold, "similarity_threshold", defaultSimilarityThreshold,
 		"article similarity threshold in percents")
-	flags.StringVar(&c.MongoHost, "mongo_host", "localhost", "mongodb host")
-
-	return flags
+	pflag.StringVar(&c.MongoHost, "mongo_host", "localhost", "mongodb host")
 }
