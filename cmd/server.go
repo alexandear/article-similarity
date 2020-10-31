@@ -9,6 +9,7 @@ import (
 
 	"github.com/devchallenge/article-similarity/internal/restapi"
 	"github.com/devchallenge/article-similarity/internal/util"
+	utilcmd "github.com/devchallenge/article-similarity/internal/util/cmd"
 )
 
 type AppServer struct {
@@ -25,7 +26,9 @@ func (s *AppServer) Cmd() *cobra.Command {
 		Use:   "server",
 		Short: "Start HTTP server",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			serv, err := restapi.NewArticleServer(log.Printf, s.config.SimilarityThreshold)
+			utilcmd.BindEnv(cmd)
+
+			serv, err := restapi.NewArticleServer(log.Printf, s.config.MongoHost, s.config.SimilarityThreshold)
 			if err != nil {
 				return errors.WithStack(err)
 			}

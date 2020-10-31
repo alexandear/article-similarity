@@ -1,26 +1,37 @@
 package handler
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"strconv"
+	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/kelseyhightower/memkv"
 	"github.com/pkg/errors"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/devchallenge/article-similarity/internal/models"
 	"github.com/devchallenge/article-similarity/internal/restapi/operations"
 	"github.com/devchallenge/article-similarity/internal/similarity"
 )
 
+const (
+	mongoOperationTimeout = 5 * time.Second
+)
+
 type Handler struct {
+	mongo *mongo.Client
 	store *memkv.Store
 	sim   *similarity.Similarity
 }
 
-func New(store *memkv.Store, sim *similarity.Similarity) *Handler {
+func New(mongo *mongo.Client, store *memkv.Store, sim *similarity.Similarity) *Handler {
 	return &Handler{
+		mongo: mongo,
 		store: store,
 		sim:   sim,
 	}
@@ -42,6 +53,35 @@ func (h *Handler) PostArticles(params operations.PostArticlesParams) middleware.
 
 	id := h.nextID()
 	h.store.Set(idKey(id), content)
+
+	collection := h.mongo.Database("dev").Collection("articles")
+
+	ctx, cancel := context.WithTimeout(context.Background(), mongoOperationTimeout)
+
+	if _, err := collection.InsertOne(ctx, bson.M{"id": id, "content": content}); err != nil {
+		log.Fatal(err)
+	}
+
+	cancel()
+
+	type Article struct {
+		ID      int    `json:"id"`
+		Content string `json:"content"`
+	}
+
+	filter := bson.D{{Key: "id", Value: id}}
+	article := Article{}
+
+	err := collection.FindOne(context.TODO(), filter).Decode(&article)
+
+	switch {
+	case err == nil:
+		log.Println("found: ", article)
+	case errors.Is(err, mongo.ErrNoDocuments):
+		log.Println("not found")
+	default:
+		log.Fatal(err)
+	}
 
 	return operations.NewPostArticlesCreated().WithPayload(&models.Article{
 		Content:             swag.String(content),
