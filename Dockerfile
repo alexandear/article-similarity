@@ -17,8 +17,5 @@ FROM alpine
 COPY --from=build /usr/local/bin/article-similarity /usr/local/bin/article-similarity
 
 ENV HOST 0.0.0.0
-ENV PORT 80
-
-EXPOSE 80
 
 ENTRYPOINT ["article-similarity"]
