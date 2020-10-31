@@ -1,2 +1,6 @@
-internal/restapi/** -diff
+internal/restapi/operations/** -diff
+internal/restapi/doc.go -diff
+internal/restapi/embedded_spec.go -diff
+internal/restapi/error.go -diff
+internal/restapi/server.go -diff
 internal/models/** -diff

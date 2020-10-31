@@ -80,7 +80,7 @@ docker:
 
 docker-run:
 	@echo docker-run
-	@docker run --rm -p 80:80 $(IMAGE)
+	@docker run --rm -p 80:80 -e PORT=80 $(IMAGE)
 
 IMAGE_DEV = article-similarity-dev
 
