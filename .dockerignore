@@ -32,3 +32,5 @@ docs
 *.md
 *.DS_Store
 Dockerfile*
+docker-compose.yml
+
