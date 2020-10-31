@@ -3,9 +3,6 @@ package handler
 import (
 	"context"
 	"fmt"
-	"log"
-	"strconv"
-	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
@@ -17,10 +14,6 @@ import (
 	"github.com/devchallenge/article-similarity/internal/models"
 	"github.com/devchallenge/article-similarity/internal/restapi/operations"
 	"github.com/devchallenge/article-similarity/internal/similarity"
-)
-
-const (
-	mongoOperationTimeout = 5 * time.Second
 )
 
 type Handler struct {
@@ -51,36 +44,24 @@ func (h *Handler) PostArticles(params operations.PostArticlesParams) middleware.
 		})
 	}
 
-	id := h.nextID()
-	h.store.Set(idKey(id), content)
-
-	collection := h.mongo.Database("dev").Collection("articles")
-
-	ctx, cancel := context.WithTimeout(context.Background(), mongoOperationTimeout)
-
-	if _, err := collection.InsertOne(ctx, bson.M{"id": id, "content": content}); err != nil {
-		log.Fatal(err)
+	autoincrement, err := h.autoincrement(context.TODO(), "articles")
+	if err != nil {
+		panic(err)
 	}
 
-	cancel()
-
-	type Article struct {
-		ID      int    `json:"id"`
-		Content string `json:"content"`
+	id := autoincrement.Counter
+	article := &Article{
+		ID:      id,
+		Content: content,
 	}
 
-	filter := bson.D{{Key: "id", Value: id}}
-	article := Article{}
+	ma, err := bson.Marshal(article)
+	if err != nil {
+		panic(err)
+	}
 
-	err := collection.FindOne(context.TODO(), filter).Decode(&article)
-
-	switch {
-	case err == nil:
-		log.Println("found: ", article)
-	case errors.Is(err, mongo.ErrNoDocuments):
-		log.Println("not found")
-	default:
-		log.Fatal(err)
+	if _, err := h.mongo.Database("dev").Collection("articles").InsertOne(context.TODO(), ma); err != nil {
+		return operations.NewPostArticlesInternalServerError()
 	}
 
 	return operations.NewPostArticlesCreated().WithPayload(&models.Article{
@@ -91,7 +72,7 @@ func (h *Handler) PostArticles(params operations.PostArticlesParams) middleware.
 }
 
 func (h *Handler) GetArticleByID(params operations.GetArticlesIDParams) middleware.Responder {
-	content, err := h.store.GetValue(idKey(int(params.ID)))
+	content, err := h.store.GetValue("1")
 
 	switch {
 	case err == nil:
@@ -114,72 +95,33 @@ func (h *Handler) GetArticleByID(params operations.GetArticlesIDParams) middlewa
 }
 
 func (h *Handler) duplicateArticleIDs(id int, content string) []int64 {
-	idContents, err := h.store.GetAll(idKeyPrefix + "*")
+	collection := h.mongo.Database("dev").Collection("articles")
+
+	cursor, err := collection.Find(context.TODO(), bson.D{})
 	if err != nil {
-		fmt.Println(errors.Wrap(err, "failed to get all contents"))
+		fmt.Println(errors.Wrap(err, "failed to get all documents"))
 
 		return nil
 	}
 
-	duplicateIDs := make([]int64, 0, len(idContents))
+	duplicateIDs := make([]int64, 0, 1)
 
-	for _, idContent := range idContents {
-		articleID := keyToID(idContent.Key)
-		if articleID == id {
+	for cursor.TryNext(context.TODO()) {
+		a := &Article{}
+		if err := cursor.Decode(a); err != nil {
+			fmt.Println(errors.Wrap(err, "failed to cursor decode"))
+
 			continue
 		}
 
-		if h.sim.IsSimilar(content, idContent.Value) {
-			duplicateIDs = append(duplicateIDs, int64(articleID))
+		if a.ID == id {
+			continue
+		}
+
+		if h.sim.IsSimilar(content, a.Content) {
+			duplicateIDs = append(duplicateIDs, int64(a.ID))
 		}
 	}
 
 	return duplicateIDs
-}
-
-const (
-	nextIDKey   = "next_id"
-	idKeyPrefix = "id_"
-)
-
-func idKey(id int) string {
-	return idKeyPrefix + strconv.Itoa(id)
-}
-
-func keyToID(idStr string) int {
-	id, err := strconv.Atoi(idStr[len(idKeyPrefix):])
-	if err != nil {
-		fmt.Println(errors.Wrap(err, "failed to convert key to id"))
-
-		return 0
-	}
-
-	return id
-}
-
-func (h *Handler) nextID() int {
-	id := 0
-
-	defer func() {
-		h.store.Set(nextIDKey, strconv.Itoa(id+1))
-	}()
-
-	idStr, err := h.store.GetValue(nextIDKey)
-
-	switch {
-	case err == nil:
-	case errors.As(err, &memkv.ErrNotExist):
-		return id
-	default:
-		fmt.Println(errors.Wrap(err, "failed to get next id value"))
-
-		return id
-	}
-
-	id, err = strconv.Atoi(idStr)
-	if err != nil {
-		fmt.Println(errors.Wrap(err, "failed to convert string to id"))
-	}
-
-	return id
 }
