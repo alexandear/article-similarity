@@ -18,7 +18,7 @@ func (c *Config) Flags() *pflag.FlagSet {
 
 	flags.Float64Var(&c.SimilarityThreshold, "similarity_threshold", defaultSimilarityThreshold,
 		"article similarity threshold in percents")
-	flags.StringVar(&c.MongoHost, "mongo_host", "mongo", "mongodb host")
+	flags.StringVar(&c.MongoHost, "mongo_host", "localhost", "mongodb host")
 
 	return flags
 }
