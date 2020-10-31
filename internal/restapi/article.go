@@ -7,7 +7,6 @@ import (
 
 	"github.com/go-openapi/loads"
 	"github.com/hashicorp/go-multierror"
-	"github.com/kelseyhightower/memkv"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -56,10 +55,9 @@ func NewArticleServer(logger func(string, ...interface{}), mongoHost string, sim
 		mongo: mc,
 	}
 
-	store := memkv.New()
 	sim := similarity.NewSimilarity(logger, similarityThreshold)
 
-	h := handler.New(mc, &store, sim)
+	h := handler.New(mc, sim)
 	h.ConfigureHandlers(api)
 	rest.ConfigureAPI()
 	rest.api.Logger = logger
