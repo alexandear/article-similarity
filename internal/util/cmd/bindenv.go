@@ -22,11 +22,13 @@ func BindEnv(cmd *cobra.Command) {
 
 func BindEnvToFlagSet(fs *pflag.FlagSet) error {
 	set := make(map[string]bool)
+
 	fs.Visit(func(f *pflag.Flag) {
 		set[f.Name] = true
 	})
 
 	var flagError error
+
 	fs.VisitAll(func(f *pflag.Flag) {
 		if flagError != nil {
 			return
@@ -35,23 +37,33 @@ func BindEnvToFlagSet(fs *pflag.FlagSet) error {
 		replacer := strings.NewReplacer("-", "_", ".", "_")
 		envVar := replacer.Replace(strings.ToUpper(f.Name))
 
-		if val := os.Getenv(envVar); val != "" {
-			if !set[f.Name] {
-				t := f.Value.Type()
-				if t == "stringArray" || t == "stringSlice" {
-					vals := strings.Split(val, " ")
-					for _, v := range vals {
-						if err := fs.Set(f.Name, v); err != nil {
-							flagError = errors.Wrapf(err, "wrapping %s with %v", f.Name, v)
-							return
-						}
+		val := os.Getenv(envVar)
+		if val == "" {
+			return
+		}
+
+		if !set[f.Name] {
+			t := f.Value.Type()
+			if t == "stringArray" || t == "stringSlice" {
+				vals := strings.Split(val, " ")
+				for _, v := range vals {
+					if err := fs.Set(f.Name, v); err != nil {
+						flagError = errors.Wrapf(err, "wrapping %s with %v", f.Name, v)
+
+						return
 					}
-				} else if err := fs.Set(f.Name, val); err != nil {
-					flagError = errors.Wrapf(err, "wrapping %s with %v", f.Name, val)
-					return
 				}
+
+				return
+			}
+
+			if err := fs.Set(f.Name, val); err != nil {
+				flagError = errors.Wrapf(err, "wrapping %s with %v", f.Name, val)
+
+				return
 			}
 		}
 	})
-	return flagError
+
+	return errors.WithStack(flagError)
 }

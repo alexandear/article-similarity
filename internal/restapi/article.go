@@ -38,6 +38,7 @@ func NewArticleServer(logger func(string, ...interface{}), mongoHost string, sim
 
 	mongoURI := fmt.Sprintf("mongodb://%s:27017", mongoHost)
 	logger("mongoURI: %s", mongoURI)
+
 	mc, err := mongo.NewClient(options.Client().ApplyURI(mongoURI))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create mongo")
@@ -83,5 +84,5 @@ func (s *ArticleServer) Close() error {
 		resErr = multierror.Append(err)
 	}
 
-	return resErr
+	return errors.WithStack(resErr)
 }
