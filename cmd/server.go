@@ -8,18 +8,27 @@ import (
 
 	"github.com/devchallenge/article-similarity/internal/restapi"
 	"github.com/devchallenge/article-similarity/internal/util"
+	"github.com/devchallenge/article-similarity/internal/util/cmd"
 )
 
-func InitFlags(config *Config) {
+func InitFlags(config *Config) error {
 	config.InitFlags()
 
 	pflag.Parse()
+
+	if err := cmd.BindEnv(pflag.CommandLine); err != nil {
+		return errors.Wrap(err, "failed to bind env")
+	}
+
+	return nil
 }
 
 func ExecuteServer() error {
 	config := &Config{}
 
-	InitFlags(config)
+	if err := InitFlags(config); err != nil {
+		return errors.WithStack(err)
+	}
 
 	serv, err := restapi.NewArticleServer(log.Printf, config.SimilarityThreshold)
 	if err != nil {
