@@ -34,10 +34,12 @@ build:
 	@echo build
 	@go build -o $(GOBIN)/article-similarity
 
+TEST_PKGS = $(shell go list ./... | grep -v /test)
+
 .PHONY: test
 test:
 	@echo test
-	@go test -count=1 -v ./...
+	@go test -count=1 -v $(TEST_PKGS)
 
 test-it:
 	@echo test-it
