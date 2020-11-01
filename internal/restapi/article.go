@@ -57,7 +57,7 @@ func NewArticleServer(logger func(string, ...interface{}), mongoHost string, mon
 
 	sim := similarity.NewSimilarity(logger, similarityThreshold)
 
-	h := handler.New(mc, mongoDatabase, sim)
+	h := handler.New(logger, mc, mongoDatabase, sim)
 	h.ConfigureHandlers(api)
 	rest.ConfigureAPI()
 	rest.api.Logger = logger

@@ -7,30 +7,44 @@ import (
 )
 
 type Similarity struct {
-	Logger    func(format string, v ...interface{})
-	Threshold float64
+	logger    func(format string, v ...interface{})
+	threshold float64
 }
 
 func NewSimilarity(logger func(format string, v ...interface{}), threshold float64) *Similarity {
-	logger("Use similarity threshold: %f", threshold)
-
 	return &Similarity{
-		Logger:    logger,
-		Threshold: threshold,
+		logger:    logger,
+		threshold: threshold,
 	}
 }
 
-func (s *Similarity) Similarity(contentA, contentB string) float64 {
-	lev := NewLevenshtein()
+func (s *Similarity) IsSimilar(idA int, contentA string, idB int, contentB string) bool {
+	s.logger("use similarity threshold: %f to compare %d and %d", s.threshold, idA, idB)
 
-	sim := lev.CompareSentence(normalize(contentA), normalize(contentB))
+	sim := s.Similarity(idA, contentA, idB, contentB) >= s.threshold
 
 	return sim
 }
 
-// normalize removes non-alphanumeric character, splits by whitespace characters, removes articles (a, an, the) and
-// returns lowercase words.
-func normalize(content string) []string {
+func (s *Similarity) Similarity(idA int, contentA string, idB int, contentB string) float64 {
+	lev := NewLevenshtein()
+
+	s.logger("normalizing %d", idA)
+
+	normA := normalizeAndReturnWords(contentA)
+
+	s.logger("normalizing %d", idB)
+
+	normB := normalizeAndReturnWords(contentB)
+
+	sim := lev.CompareSentence(normA, normB)
+
+	return sim
+}
+
+// normalizeAndReturnWords removes non-alphanumeric character, splits by whitespace characters,
+// removes articles (a, an, the) and returns lowercase words.
+func normalizeAndReturnWords(content string) []string {
 	modContent := string(util.Strip([]byte(content)))
 	modContent = strings.ToLower(modContent)
 	fields := strings.Fields(modContent)
@@ -47,8 +61,4 @@ func normalize(content string) []string {
 	}
 
 	return res
-}
-
-func (s *Similarity) IsSimilar(contentA, contentB string) bool {
-	return s.Similarity(contentA, contentB) >= s.Threshold
 }

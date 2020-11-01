@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
@@ -16,16 +15,23 @@ import (
 )
 
 type Handler struct {
+	logger func(string, ...interface{})
+
 	mongo         *mongo.Client
 	mongoDatabase string
-	sim           *similarity.Similarity
+
+	sim *similarity.Similarity
 }
 
-func New(mongo *mongo.Client, mongoDatabase string, sim *similarity.Similarity) *Handler {
+func New(logger func(string, ...interface{}), mongo *mongo.Client, mongoDatabase string, sim *similarity.Similarity,
+) *Handler {
 	return &Handler{
+		logger: logger,
+
 		mongo:         mongo,
 		mongoDatabase: mongoDatabase,
-		sim:           sim,
+
+		sim: sim,
 	}
 }
 
@@ -114,7 +120,7 @@ func (h *Handler) duplicateArticleIDs(ctx context.Context, id int, content strin
 
 	cursor, err := collection.Find(ctx, bson.D{})
 	if err != nil {
-		fmt.Println(errors.Wrap(err, "failed to get all documents"))
+		h.logger("failed to get all documents: %v", err)
 
 		return nil
 	}
@@ -124,7 +130,7 @@ func (h *Handler) duplicateArticleIDs(ctx context.Context, id int, content strin
 	for cursor.TryNext(ctx) {
 		a := &Article{}
 		if err := cursor.Decode(a); err != nil {
-			fmt.Println(errors.Wrap(err, "failed to cursor decode"))
+			h.logger("failed to cursor decode: %v", err)
 
 			continue
 		}
@@ -133,7 +139,7 @@ func (h *Handler) duplicateArticleIDs(ctx context.Context, id int, content strin
 			continue
 		}
 
-		if h.sim.IsSimilar(content, a.Content) {
+		if h.sim.IsSimilar(id, content, a.ID, a.Content) {
 			duplicateIDs = append(duplicateIDs, int64(a.ID))
 		}
 	}
