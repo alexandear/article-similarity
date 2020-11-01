@@ -25,8 +25,8 @@ type ArticleServer struct {
 	mongo *mongo.Client
 }
 
-func NewArticleServer(logger func(string, ...interface{}), mongoHost string, mongoPort int, similarityThreshold float64,
-) (*ArticleServer, error) {
+func NewArticleServer(logger func(string, ...interface{}), mongoHost string, mongoPort int, mongoDatabase string,
+	similarityThreshold float64) (*ArticleServer, error) {
 	swaggerSpec, err := loads.Embedded(SwaggerJSON, FlatSwaggerJSON)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to embedded spec")
@@ -57,7 +57,7 @@ func NewArticleServer(logger func(string, ...interface{}), mongoHost string, mon
 
 	sim := similarity.NewSimilarity(logger, similarityThreshold)
 
-	h := handler.New(mc, sim)
+	h := handler.New(mc, mongoDatabase, sim)
 	h.ConfigureHandlers(api)
 	rest.ConfigureAPI()
 	rest.api.Logger = logger

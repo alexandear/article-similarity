@@ -30,7 +30,8 @@ func ExecuteServer() error {
 		return errors.WithStack(err)
 	}
 
-	serv, err := restapi.NewArticleServer(log.Printf, config.MongoHost, config.MongoPort, config.SimilarityThreshold)
+	serv, err := restapi.NewArticleServer(log.Printf, config.MongoHost, config.MongoPort, config.MongoDatabase,
+		config.SimilarityThreshold)
 	if err != nil {
 		return errors.WithStack(err)
 	}

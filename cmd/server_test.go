@@ -14,6 +14,7 @@ func TestInitFlags(t *testing.T) {
 	require.NoError(t, os.Setenv("SIMILARITY_THRESHOLD", "0.92"))
 	require.NoError(t, os.Setenv("MONGO_HOST", "mongo"))
 	require.NoError(t, os.Setenv("MONGO_PORT", "27020"))
+	require.NoError(t, os.Setenv("MONGO_DATABASE", "prod"))
 	os.Args = append(os.Args, "--port", "8050")
 	config := &Config{}
 
@@ -23,6 +24,7 @@ func TestInitFlags(t *testing.T) {
 	assert.Equal(t, 0.92, config.SimilarityThreshold)
 	assert.Equal(t, "mongo", config.MongoHost)
 	assert.Equal(t, 27020, config.MongoPort)
+	assert.Equal(t, "prod", config.MongoDatabase)
 	assertFlagEqual(t, "similarity_threshold", "0.92")
 	assertFlagEqual(t, "port", "8050")
 }

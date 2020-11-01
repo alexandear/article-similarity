@@ -16,14 +16,16 @@ import (
 )
 
 type Handler struct {
-	mongo *mongo.Client
-	sim   *similarity.Similarity
+	mongo         *mongo.Client
+	mongoDatabase string
+	sim           *similarity.Similarity
 }
 
-func New(mongo *mongo.Client, sim *similarity.Similarity) *Handler {
+func New(mongo *mongo.Client, mongoDatabase string, sim *similarity.Similarity) *Handler {
 	return &Handler{
-		mongo: mongo,
-		sim:   sim,
+		mongo:         mongo,
+		mongoDatabase: mongoDatabase,
+		sim:           sim,
 	}
 }
 
@@ -31,6 +33,10 @@ func (h *Handler) ConfigureHandlers(api *operations.ArticleSimilarityAPI) {
 	api.PostArticlesHandler = operations.PostArticlesHandlerFunc(h.PostArticles)
 	api.GetArticlesIDHandler = operations.GetArticlesIDHandlerFunc(h.GetArticleByID)
 }
+
+const (
+	collectionArticles = "articles"
+)
 
 func (h *Handler) PostArticles(params operations.PostArticlesParams) middleware.Responder {
 	content := *params.Body.Content
@@ -43,7 +49,7 @@ func (h *Handler) PostArticles(params operations.PostArticlesParams) middleware.
 
 	ctx := params.HTTPRequest.Context()
 
-	autoincrement, err := h.autoincrement(ctx, "articles")
+	autoincrement, err := h.autoincrement(ctx, collectionArticles)
 	if err != nil {
 		return operations.NewPostArticlesInternalServerError()
 	}
@@ -59,7 +65,7 @@ func (h *Handler) PostArticles(params operations.PostArticlesParams) middleware.
 		return operations.NewPostArticlesInternalServerError()
 	}
 
-	if _, err := h.mongo.Database("dev").Collection("articles").InsertOne(ctx, ma); err != nil {
+	if _, err := h.mongo.Database(h.mongoDatabase).Collection(collectionArticles).InsertOne(ctx, ma); err != nil {
 		return operations.NewPostArticlesInternalServerError()
 	}
 
@@ -71,7 +77,7 @@ func (h *Handler) PostArticles(params operations.PostArticlesParams) middleware.
 func (h *Handler) GetArticleByID(params operations.GetArticlesIDParams) middleware.Responder {
 	ctx := params.HTTPRequest.Context()
 
-	res := h.mongo.Database("dev").Collection("articles").
+	res := h.mongo.Database(h.mongoDatabase).Collection(collectionArticles).
 		FindOne(ctx, bson.D{{Key: "id", Value: params.ID}})
 	if errors.Is(res.Err(), mongo.ErrNoDocuments) {
 		return operations.NewGetArticlesIDNotFound()
@@ -104,7 +110,7 @@ func (h *Handler) modelsArticle(ctx context.Context, article Article) *models.Ar
 const maxDuplicateIDs = 100
 
 func (h *Handler) duplicateArticleIDs(ctx context.Context, id int, content string) []int64 {
-	collection := h.mongo.Database("dev").Collection("articles")
+	collection := h.mongo.Database(h.mongoDatabase).Collection(collectionArticles)
 
 	cursor, err := collection.Find(ctx, bson.D{})
 	if err != nil {
