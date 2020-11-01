@@ -57,6 +57,7 @@ func (a *Article) ArticleByID(ctx context.Context, id int) (model.Article, error
 }
 
 func (a *Article) UniqueArticles(ctx context.Context) ([]model.Article, error) {
+	// nolint:gomnd // temp
 	return []model.Article{
 		{
 			ID:           1,

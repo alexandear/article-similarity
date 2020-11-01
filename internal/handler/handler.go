@@ -91,11 +91,14 @@ func (h *Handler) GetDuplicateGroups(params operations.GetDuplicateGroupsParams)
 	}
 
 	modelsGroups := make([][]models.ArticleID, 0, len(groups))
+
 	for _, g := range groups {
 		mg := make([]models.ArticleID, 0, len(g.IDs))
+
 		for _, id := range g.IDs {
 			mg = append(mg, models.ArticleID(id))
 		}
+
 		modelsGroups = append(modelsGroups, mg)
 	}
 
