@@ -6,9 +6,10 @@ import (
 	"crypto/tls"
 	"net/http"
 
-	"github.com/devchallenge/article-similarity/internal/restapi/operations"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+
+	"github.com/devchallenge/article-similarity/internal/restapi/operations"
 )
 
 //go:generate swagger generate server --target ../../internal --name ArticleSimilarityAPI --spec ../../api/spec.yaml --principal interface{} --exclude-main
@@ -17,6 +18,8 @@ func configureFlags(api *operations.ArticleSimilarityAPI) {
 }
 
 func configureAPI(api *operations.ArticleSimilarityAPI) http.Handler {
+	middleware.Debug = true
+
 	api.ServeError = ServeError
 	api.Logger = middleware.Logger.Printf
 	api.UseRedoc()
@@ -24,8 +27,6 @@ func configureAPI(api *operations.ArticleSimilarityAPI) http.Handler {
 	api.JSONProducer = runtime.JSONProducer()
 	api.PreServerShutdown = func() {}
 	api.ServerShutdown = func() {}
-
-	middleware.Debug = true
 
 	return setupGlobalMiddleware(api.Serve(setupMiddlewares))
 }
