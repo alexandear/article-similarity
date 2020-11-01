@@ -28,6 +28,10 @@ applied content preprocessing:
 
 Algorithm works for English content only.
 
+## Scalability
+
+See [SCALEME](SCALEME.md) file.
+
 ## Technologies
 
 There are HTTP server written on Golang and `mongodb` storage.
