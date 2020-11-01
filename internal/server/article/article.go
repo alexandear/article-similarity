@@ -17,7 +17,7 @@ type Article struct {
 
 type Storage interface {
 	NextArticleID(ctx context.Context) (int, error)
-	CreateArticle(ctx context.Context, id int, content string) error
+	CreateArticle(ctx context.Context, id int, content string, duplicateIDs []int) error
 	ArticleByID(ctx context.Context, id int) (model.Article, error)
 	AllArticles(ctx context.Context) ([]model.Article, error)
 }
@@ -40,11 +40,20 @@ func (a *Article) CreateArticle(ctx context.Context, content string) (model.Arti
 		return model.Article{}, errors.Wrap(err, "failed to get next article id")
 	}
 
-	if err := a.storage.CreateArticle(ctx, id, content); err != nil {
+	duplicateIDs, err := a.duplicateArticleIDs(ctx, id, content)
+	if err != nil {
+		a.logger("failed to find duplicate articles ids: %v", err)
+	}
+
+	if err := a.storage.CreateArticle(ctx, id, content, duplicateIDs); err != nil {
 		return model.Article{}, errors.Wrap(err, "failed to create article")
 	}
 
-	return a.article(ctx, id, content), nil
+	return model.Article{
+		ID:           id,
+		Content:      content,
+		DuplicateIDs: duplicateIDs,
+	}, nil
 }
 
 func (a *Article) ArticleByID(ctx context.Context, id int) (model.Article, error) {
@@ -53,7 +62,11 @@ func (a *Article) ArticleByID(ctx context.Context, id int) (model.Article, error
 		return model.Article{}, errors.WithStack(err)
 	}
 
-	return a.article(ctx, id, article.Content), nil
+	return model.Article{
+		ID:           article.ID,
+		Content:      article.Content,
+		DuplicateIDs: article.DuplicateIDs,
+	}, nil
 }
 
 func (a *Article) UniqueArticles(ctx context.Context) ([]model.Article, error) {
@@ -88,19 +101,6 @@ func (a *Article) DuplicateGroups(ctx context.Context) ([]model.DuplicateGroup, 
 	}, nil
 }
 
-func (a *Article) article(ctx context.Context, id int, content string) model.Article {
-	duplicateIDs, err := a.duplicateArticleIDs(ctx, id, content)
-	if err != nil {
-		a.logger("failed to find duplicate articles ids: %v", err)
-	}
-
-	return model.Article{
-		ID:           id,
-		Content:      content,
-		DuplicateIDs: duplicateIDs,
-	}
-}
-
 func (a *Article) duplicateArticleIDs(ctx context.Context, id int, content string) ([]int, error) {
 	articles, err := a.storage.AllArticles(ctx)
 	if err != nil {
@@ -110,10 +110,6 @@ func (a *Article) duplicateArticleIDs(ctx context.Context, id int, content strin
 	duplicates := make([]int, 0, len(articles))
 
 	for _, article := range articles {
-		if id == article.ID {
-			continue
-		}
-
 		if a.sim.IsSimilar(id, content, article.ID, article.Content) {
 			duplicates = append(duplicates, article.ID)
 		}

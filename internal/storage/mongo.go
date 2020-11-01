@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	maxArticles = 100
+	maxArticles = 1000
 
 	collectionArticles      = "articles"
 	collectionAutoincrement = "autoincrement"
@@ -41,11 +41,12 @@ func (s *Storage) NextArticleID(ctx context.Context) (int, error) {
 	return inc.Counter, nil
 }
 
-func (s *Storage) CreateArticle(ctx context.Context, id int, content string) error {
+func (s *Storage) CreateArticle(ctx context.Context, id int, content string, duplicateIDs []int) error {
 	a := article{
-		ID:        id,
-		Content:   content,
-		CreatedAt: time.Now(),
+		ID:           id,
+		Content:      content,
+		DuplicateIDs: duplicateIDs,
+		CreatedAt:    time.Now(),
 	}
 
 	ma, err := bson.Marshal(&a)
@@ -78,7 +79,7 @@ func (s *Storage) ArticleByID(ctx context.Context, id int) (model.Article, error
 	return model.Article{
 		ID:           art.ID,
 		Content:      art.Content,
-		DuplicateIDs: nil,
+		DuplicateIDs: art.DuplicateIDs,
 	}, nil
 }
 
@@ -91,7 +92,7 @@ func (s *Storage) AllArticles(ctx context.Context) ([]model.Article, error) {
 		return nil, errors.Wrap(err, "failed to find all documents")
 	}
 
-	for cur.TryNext(ctx) {
+	for cur.TryNext(ctx) && len(articles) != maxArticles {
 		art := &article{}
 
 		if err := cur.Decode(art); err != nil {
@@ -101,7 +102,7 @@ func (s *Storage) AllArticles(ctx context.Context) ([]model.Article, error) {
 		articles = append(articles, model.Article{
 			ID:           art.ID,
 			Content:      art.Content,
-			DuplicateIDs: nil,
+			DuplicateIDs: art.DuplicateIDs,
 		})
 	}
 

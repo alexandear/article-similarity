@@ -7,9 +7,10 @@ import (
 )
 
 type article struct {
-	ID        int       `bson:"id"`
-	Content   string    `bson:"content"`
-	CreatedAt time.Time `bson:"created_at"`
+	ID           int       `bson:"id"`
+	Content      string    `bson:"content"`
+	DuplicateIDs []int     `bson:"duplicate_ids"`
+	CreatedAt    time.Time `bson:"created_at"`
 }
 
 type autoincrement struct {
