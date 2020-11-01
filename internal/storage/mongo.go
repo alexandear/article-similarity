@@ -27,6 +27,7 @@ type Storage struct {
 
 func New(mc *mongo.Client, database string) *Storage {
 	db := mc.Database(database)
+
 	return &Storage{
 		collectionArticle:       db.Collection(collectionArticles),
 		collectionAutoincrement: db.Collection(collectionAutoincrement),
