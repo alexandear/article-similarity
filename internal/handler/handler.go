@@ -22,7 +22,6 @@ type ArticleServer interface {
 	CreateArticle(ctx context.Context, content string) (model.Article, error)
 	ArticleByID(ctx context.Context, id int) (model.Article, error)
 	UniqueArticles(ctx context.Context) ([]model.Article, error)
-	DuplicateGroups(ctx context.Context) ([]model.DuplicateGroup, error)
 }
 
 type Handler struct {
@@ -39,7 +38,6 @@ func (h *Handler) ConfigureHandlers(api *operations.ArticleSimilarityAPI) {
 	api.PostArticlesHandler = operations.PostArticlesHandlerFunc(h.PostArticles)
 	api.GetArticlesIDHandler = operations.GetArticlesIDHandlerFunc(h.GetArticleByID)
 	api.GetArticlesHandler = operations.GetArticlesHandlerFunc(h.GetUniqueArticles)
-	api.GetDuplicateGroupsHandler = operations.GetDuplicateGroupsHandlerFunc(h.GetDuplicateGroups)
 }
 
 func (h *Handler) PostArticles(params operations.PostArticlesParams) middleware.Responder {
@@ -95,32 +93,6 @@ func (h *Handler) GetUniqueArticles(params operations.GetArticlesParams) middlew
 
 	return operations.NewGetArticlesOK().WithPayload(&operations.GetArticlesOKBody{
 		Articles: modelsArticles,
-	})
-}
-
-func (h *Handler) GetDuplicateGroups(params operations.GetDuplicateGroupsParams) middleware.Responder {
-	ctx, cancel := context.WithTimeout(params.HTTPRequest.Context(), serverTimeout)
-	defer cancel()
-
-	groups, err := h.article.DuplicateGroups(ctx)
-	if err != nil {
-		return operations.NewGetDuplicateGroupsInternalServerError()
-	}
-
-	modelsGroups := make([][]models.ArticleID, 0, len(groups))
-
-	for _, g := range groups {
-		mg := make([]models.ArticleID, 0, len(g.IDs))
-
-		for _, id := range g.IDs {
-			mg = append(mg, models.ArticleID(id))
-		}
-
-		modelsGroups = append(modelsGroups, mg)
-	}
-
-	return operations.NewGetDuplicateGroupsOK().WithPayload(&operations.GetDuplicateGroupsOKBody{
-		DuplicateGroups: modelsGroups,
 	})
 }
 

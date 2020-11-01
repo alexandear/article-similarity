@@ -90,6 +90,10 @@ func (s *e2eTestSuite) Test_EndToEnd_Errors() {
 	// POST /articles {"content": ""} -> 400
 	s.AssertRequestResponse(http.MethodPost, "/articles", `{"content": ""}`,
 		http.StatusBadRequest, `{"message":"empty content"}`)
+
+	// GET /duplicate_groups -> 501
+	s.AssertRequestResponse(http.MethodGet, "/duplicate_groups", ``,
+		http.StatusNotImplemented, `"operation GetDuplicateGroups has not yet been implemented"`)
 }
 
 func (s *e2eTestSuite) AssertRequestResponse(reqMethod, reqPath, reqBody string, expectedStatus int, expectedBody string) {
