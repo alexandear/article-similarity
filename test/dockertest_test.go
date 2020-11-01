@@ -6,6 +6,8 @@ import (
 	"net"
 	"net/http"
 
+	"code.soquee.net/testlog"
+	"github.com/ory/dockertest/v3/docker"
 	"github.com/pkg/errors"
 )
 
@@ -42,4 +44,17 @@ func freePort() int {
 	}
 
 	return list.Addr().(*net.TCPAddr).Port
+}
+
+func (s *e2eTestSuite) logs(containerID string) {
+	if err := s.pool.Client.Logs(docker.LogsOptions{
+		Container:    containerID,
+		Stdout:       true,
+		Stderr:       true,
+		OutputStream: testlog.New(s.T()).Writer(),
+		ErrorStream:  testlog.New(s.T()).Writer(),
+		Follow:       true,
+	}); err != nil {
+		s.T().Log(err)
+	}
 }

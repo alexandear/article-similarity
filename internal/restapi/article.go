@@ -25,7 +25,7 @@ type ArticleServer struct {
 	mongo *mongo.Client
 }
 
-func NewArticleServer(logger func(string, ...interface{}), mongoHost string, similarityThreshold float64,
+func NewArticleServer(logger func(string, ...interface{}), mongoHost string, mongoPort int, similarityThreshold float64,
 ) (*ArticleServer, error) {
 	swaggerSpec, err := loads.Embedded(SwaggerJSON, FlatSwaggerJSON)
 	if err != nil {
@@ -35,7 +35,7 @@ func NewArticleServer(logger func(string, ...interface{}), mongoHost string, sim
 	api := operations.NewArticleSimilarityAPI(swaggerSpec)
 	rest := NewServer(api)
 
-	mongoURI := fmt.Sprintf("mongodb://%s:27017", mongoHost)
+	mongoURI := fmt.Sprintf("mongodb://%s:%d", mongoHost, mongoPort)
 	logger("mongoURI: %s", mongoURI)
 
 	mc, err := mongo.NewClient(options.Client().ApplyURI(mongoURI))

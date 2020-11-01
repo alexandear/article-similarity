@@ -11,10 +11,12 @@ const (
 type Config struct {
 	SimilarityThreshold float64
 	MongoHost           string
+	MongoPort           int
 }
 
 func (c *Config) InitFlags() {
 	pflag.Float64Var(&c.SimilarityThreshold, "similarity_threshold", defaultSimilarityThreshold,
 		"article similarity threshold in percents")
 	pflag.StringVar(&c.MongoHost, "mongo_host", "localhost", "mongodb host")
+	pflag.IntVar(&c.MongoPort, "mongo_port", 27017, "mongodb port")
 }
