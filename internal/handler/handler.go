@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
@@ -11,6 +12,10 @@ import (
 	"github.com/devchallenge/article-similarity/internal/model"
 	"github.com/devchallenge/article-similarity/internal/swagger/models"
 	"github.com/devchallenge/article-similarity/internal/swagger/restapi/operations"
+)
+
+const (
+	serverTimeout = 5 * time.Second
 )
 
 type ArticleServer interface {
@@ -46,7 +51,10 @@ func (h *Handler) PostArticles(params operations.PostArticlesParams) middleware.
 		})
 	}
 
-	article, err := h.article.CreateArticle(params.HTTPRequest.Context(), content)
+	ctx, cancel := context.WithTimeout(params.HTTPRequest.Context(), serverTimeout)
+	defer cancel()
+
+	article, err := h.article.CreateArticle(ctx, content)
 	if err != nil {
 		return operations.NewPostArticlesInternalServerError()
 	}
@@ -55,7 +63,10 @@ func (h *Handler) PostArticles(params operations.PostArticlesParams) middleware.
 }
 
 func (h *Handler) GetArticleByID(params operations.GetArticlesIDParams) middleware.Responder {
-	article, err := h.article.ArticleByID(params.HTTPRequest.Context(), int(params.ID))
+	ctx, cancel := context.WithTimeout(params.HTTPRequest.Context(), serverTimeout)
+	defer cancel()
+
+	article, err := h.article.ArticleByID(ctx, int(params.ID))
 
 	if errors.Is(err, internalErrors.ErrNotFound) {
 		return operations.NewGetArticlesIDNotFound()
@@ -69,7 +80,10 @@ func (h *Handler) GetArticleByID(params operations.GetArticlesIDParams) middlewa
 }
 
 func (h *Handler) GetUniqueArticles(params operations.GetArticlesParams) middleware.Responder {
-	articles, err := h.article.UniqueArticles(params.HTTPRequest.Context())
+	ctx, cancel := context.WithTimeout(params.HTTPRequest.Context(), serverTimeout)
+	defer cancel()
+
+	articles, err := h.article.UniqueArticles(ctx)
 	if err != nil {
 		return operations.NewGetArticlesInternalServerError()
 	}
@@ -85,7 +99,10 @@ func (h *Handler) GetUniqueArticles(params operations.GetArticlesParams) middlew
 }
 
 func (h *Handler) GetDuplicateGroups(params operations.GetDuplicateGroupsParams) middleware.Responder {
-	groups, err := h.article.DuplicateGroups(params.HTTPRequest.Context())
+	ctx, cancel := context.WithTimeout(params.HTTPRequest.Context(), serverTimeout)
+	defer cancel()
+
+	groups, err := h.article.DuplicateGroups(ctx)
 	if err != nil {
 		return operations.NewGetDuplicateGroupsInternalServerError()
 	}
