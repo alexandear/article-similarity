@@ -14,6 +14,7 @@ import (
 	"github.com/devchallenge/article-similarity/internal/handler"
 	"github.com/devchallenge/article-similarity/internal/server/article"
 	"github.com/devchallenge/article-similarity/internal/similarity"
+	"github.com/devchallenge/article-similarity/internal/storage"
 	"github.com/devchallenge/article-similarity/internal/swagger/restapi"
 	"github.com/devchallenge/article-similarity/internal/swagger/restapi/operations"
 )
@@ -57,7 +58,9 @@ func New(
 		return nil, errors.WithStack(err)
 	}
 
-	art := article.New(logger, similarity.NewSimilarity(logger, similarityThreshold), mc, mongoDatabase)
+	st := storage.New(mc, mongoDatabase)
+
+	art := article.New(logger, similarity.NewSimilarity(logger, similarityThreshold), st)
 
 	server := &Server{
 		rest:    rest,
