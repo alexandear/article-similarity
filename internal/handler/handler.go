@@ -15,7 +15,7 @@ import (
 )
 
 type Handler struct {
-	logger func(string, ...interface{})
+	logger func(format string, v ...interface{})
 
 	mongo         *mongo.Client
 	mongoDatabase string
@@ -23,7 +23,10 @@ type Handler struct {
 	sim *similarity.Similarity
 }
 
-func New(logger func(string, ...interface{}), mongo *mongo.Client, mongoDatabase string, sim *similarity.Similarity,
+func New(
+	logger func(format string, v ...interface{}),
+	mongo *mongo.Client, mongoDatabase string,
+	sim *similarity.Similarity,
 ) *Handler {
 	return &Handler{
 		logger: logger,
