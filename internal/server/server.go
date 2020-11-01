@@ -1,4 +1,4 @@
-package restapi
+package server
 
 import (
 	"context"
@@ -12,31 +12,33 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/devchallenge/article-similarity/internal/handler"
-	"github.com/devchallenge/article-similarity/internal/restapi/operations"
 	"github.com/devchallenge/article-similarity/internal/similarity"
+	"github.com/devchallenge/article-similarity/internal/swagger/restapi"
+	"github.com/devchallenge/article-similarity/internal/swagger/restapi/operations"
 )
 
 const (
 	defaultStorageConnectTimeout = 10 * time.Second
 )
 
-type ArticleServer struct {
-	rest  *Server
+type Server struct {
+	rest  *restapi.Server
 	mongo *mongo.Client
 }
 
-func NewArticleServer(
+func New(
 	logger func(format string, v ...interface{}),
 	mongoHost string, mongoPort int, mongoDatabase string,
 	similarityThreshold float64,
-) (*ArticleServer, error) {
-	swaggerSpec, err := loads.Embedded(SwaggerJSON, FlatSwaggerJSON)
+) (*Server, error) {
+	swaggerSpec, err := loads.Embedded(restapi.SwaggerJSON, restapi.FlatSwaggerJSON)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to embedded spec")
 	}
 
 	api := operations.NewArticleSimilarityAPI(swaggerSpec)
-	rest := NewServer(api)
+	api.Logger = logger
+	rest := restapi.NewServer(api)
 
 	mongoURI := fmt.Sprintf("mongodb://%s:%d", mongoHost, mongoPort)
 	logger("mongoURI: %s", mongoURI)
@@ -53,7 +55,7 @@ func NewArticleServer(
 		return nil, errors.WithStack(err)
 	}
 
-	server := &ArticleServer{
+	server := &Server{
 		rest:  rest,
 		mongo: mc,
 	}
@@ -63,16 +65,15 @@ func NewArticleServer(
 	h := handler.New(logger, mc, mongoDatabase, sim)
 	h.ConfigureHandlers(api)
 	rest.ConfigureAPI()
-	rest.api.Logger = logger
 
 	return server, nil
 }
 
-func (s *ArticleServer) Serve() error {
+func (s *Server) Serve() error {
 	return s.rest.Serve()
 }
 
-func (s *ArticleServer) Close() error {
+func (s *Server) Close() error {
 	var resErr error
 	if err := s.rest.Shutdown(); err != nil {
 		resErr = multierror.Append(err)

@@ -25,7 +25,7 @@ import (
 	flag "github.com/spf13/pflag"
 	"golang.org/x/net/netutil"
 
-	"github.com/devchallenge/article-similarity/internal/restapi/operations"
+	"github.com/devchallenge/article-similarity/internal/swagger/restapi/operations"
 )
 
 const (

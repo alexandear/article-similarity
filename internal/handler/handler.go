@@ -9,9 +9,9 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	"github.com/devchallenge/article-similarity/internal/models"
-	"github.com/devchallenge/article-similarity/internal/restapi/operations"
 	"github.com/devchallenge/article-similarity/internal/similarity"
+	"github.com/devchallenge/article-similarity/internal/swagger/models"
+	"github.com/devchallenge/article-similarity/internal/swagger/restapi/operations"
 )
 
 type Handler struct {

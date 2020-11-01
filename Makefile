@@ -56,7 +56,7 @@ format:
 
 SWAGGER          = $(GOBIN)/swagger
 SPEC             = $(MAKEFILE_PATH)/api/spec.yaml
-SWAGGER_GEN_PATH = $(MAKEFILE_PATH)/internal
+SWAGGER_GEN_PATH = $(MAKEFILE_PATH)/internal/swagger
 
 doc:
 	@echo swagger doc
