@@ -42,8 +42,14 @@ func NewArticleSimilarityAPI(spec *loads.Document) *ArticleSimilarityAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
+		GetArticlesHandler: GetArticlesHandlerFunc(func(params GetArticlesParams) middleware.Responder {
+			return middleware.NotImplemented("operation GetArticles has not yet been implemented")
+		}),
 		GetArticlesIDHandler: GetArticlesIDHandlerFunc(func(params GetArticlesIDParams) middleware.Responder {
 			return middleware.NotImplemented("operation GetArticlesID has not yet been implemented")
+		}),
+		GetDuplicateGroupsHandler: GetDuplicateGroupsHandlerFunc(func(params GetDuplicateGroupsParams) middleware.Responder {
+			return middleware.NotImplemented("operation GetDuplicateGroups has not yet been implemented")
 		}),
 		PostArticlesHandler: PostArticlesHandlerFunc(func(params PostArticlesParams) middleware.Responder {
 			return middleware.NotImplemented("operation PostArticles has not yet been implemented")
@@ -82,8 +88,12 @@ type ArticleSimilarityAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
+	// GetArticlesHandler sets the operation handler for the get articles operation
+	GetArticlesHandler GetArticlesHandler
 	// GetArticlesIDHandler sets the operation handler for the get articles ID operation
 	GetArticlesIDHandler GetArticlesIDHandler
+	// GetDuplicateGroupsHandler sets the operation handler for the get duplicate groups operation
+	GetDuplicateGroupsHandler GetDuplicateGroupsHandler
 	// PostArticlesHandler sets the operation handler for the post articles operation
 	PostArticlesHandler PostArticlesHandler
 	// ServeError is called when an error is received, there is a default handler
@@ -162,8 +172,14 @@ func (o *ArticleSimilarityAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
+	if o.GetArticlesHandler == nil {
+		unregistered = append(unregistered, "GetArticlesHandler")
+	}
 	if o.GetArticlesIDHandler == nil {
 		unregistered = append(unregistered, "GetArticlesIDHandler")
+	}
+	if o.GetDuplicateGroupsHandler == nil {
+		unregistered = append(unregistered, "GetDuplicateGroupsHandler")
 	}
 	if o.PostArticlesHandler == nil {
 		unregistered = append(unregistered, "PostArticlesHandler")
@@ -259,7 +275,15 @@ func (o *ArticleSimilarityAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/articles"] = NewGetArticles(o.context, o.GetArticlesHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/articles/{id}"] = NewGetArticlesID(o.context, o.GetArticlesIDHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/duplicate_groups"] = NewGetDuplicateGroups(o.context, o.GetDuplicateGroupsHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

@@ -27,11 +27,28 @@ paths:
           required: true
       responses:
         201:
-          description: Articled added.
+          description: Article added.
           schema:
             $ref: "#/definitions/Article"
         400:
           $ref: "#/responses/InvalidArgument"
+        500:
+          $ref: "#/responses/ServerError"
+
+    get:
+      summary: Get unique articles.
+      responses:
+        200:
+          description: OK.
+          schema:
+            type: object
+            properties:
+              articles:
+                type: array
+                items:
+                  $ref: "#/definitions/Article"
+            required:
+              - articles
         500:
           $ref: "#/responses/ServerError"
 
@@ -51,9 +68,29 @@ paths:
         400:
           $ref: "#/responses/InvalidArgument"
         404:
-          description: Article not found
+          description: Article not found.
           schema:
             $ref: '#/definitions/Error'
+        500:
+          $ref: "#/responses/ServerError"
+
+  /duplicate_groups:
+    get:
+      summary: Get duplicate groups ids.
+      responses:
+        200:
+          description: OK.
+          schema:
+            type: object
+            properties:
+              duplicate_groups:
+                type: array
+                items:
+                  type: array
+                  items:
+                    $ref: "#/definitions/ArticleId"
+            required:
+              - duplicate_groups
         500:
           $ref: "#/responses/ServerError"
 
@@ -71,13 +108,16 @@ definitions:
     required:
       - message
 
+  ArticleId:
+    description: Article id
+    type: integer
+    format: int64
+
   Article:
     type: object
     properties:
       id:
-        description: Article id
-        type: integer
-        format: int64
+        $ref: "#/definitions/ArticleId"
       content:
         description: Article content
         type: string

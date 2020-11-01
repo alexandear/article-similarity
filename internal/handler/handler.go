@@ -16,6 +16,8 @@ import (
 type ArticleServer interface {
 	CreateArticle(ctx context.Context, content string) (model.Article, error)
 	ArticleByID(ctx context.Context, id int) (model.Article, error)
+	UniqueArticles(ctx context.Context) ([]model.Article, error)
+	DuplicateGroups(ctx context.Context) ([]model.DuplicateGroup, error)
 }
 
 type Handler struct {
@@ -31,6 +33,8 @@ func New(article ArticleServer) *Handler {
 func (h *Handler) ConfigureHandlers(api *operations.ArticleSimilarityAPI) {
 	api.PostArticlesHandler = operations.PostArticlesHandlerFunc(h.PostArticles)
 	api.GetArticlesIDHandler = operations.GetArticlesIDHandlerFunc(h.GetArticleByID)
+	api.GetArticlesHandler = operations.GetArticlesHandlerFunc(h.GetUniqueArticles)
+	api.GetDuplicateGroupsHandler = operations.GetDuplicateGroupsHandlerFunc(h.GetDuplicateGroups)
 }
 
 func (h *Handler) PostArticles(params operations.PostArticlesParams) middleware.Responder {
@@ -47,7 +51,7 @@ func (h *Handler) PostArticles(params operations.PostArticlesParams) middleware.
 		return operations.NewPostArticlesInternalServerError()
 	}
 
-	return operations.NewPostArticlesCreated().WithPayload(h.modelsArticle(article))
+	return operations.NewPostArticlesCreated().WithPayload(modelsArticle(article))
 }
 
 func (h *Handler) GetArticleByID(params operations.GetArticlesIDParams) middleware.Responder {
@@ -61,10 +65,46 @@ func (h *Handler) GetArticleByID(params operations.GetArticlesIDParams) middlewa
 		return operations.NewGetArticlesIDInternalServerError()
 	}
 
-	return operations.NewGetArticlesIDOK().WithPayload(h.modelsArticle(article))
+	return operations.NewGetArticlesIDOK().WithPayload(modelsArticle(article))
 }
 
-func (h *Handler) modelsArticle(article model.Article) *models.Article {
+func (h *Handler) GetUniqueArticles(params operations.GetArticlesParams) middleware.Responder {
+	articles, err := h.article.UniqueArticles(params.HTTPRequest.Context())
+	if err != nil {
+		return operations.NewGetArticlesInternalServerError()
+	}
+
+	modelsArticles := make([]*models.Article, 0, len(articles))
+	for _, article := range articles {
+		modelsArticles = append(modelsArticles, modelsArticle(article))
+	}
+
+	return operations.NewGetArticlesOK().WithPayload(&operations.GetArticlesOKBody{
+		Articles: modelsArticles,
+	})
+}
+
+func (h *Handler) GetDuplicateGroups(params operations.GetDuplicateGroupsParams) middleware.Responder {
+	groups, err := h.article.DuplicateGroups(params.HTTPRequest.Context())
+	if err != nil {
+		return operations.NewGetDuplicateGroupsInternalServerError()
+	}
+
+	modelsGroups := make([][]models.ArticleID, 0, len(groups))
+	for _, g := range groups {
+		mg := make([]models.ArticleID, 0, len(g.IDs))
+		for _, id := range g.IDs {
+			mg = append(mg, models.ArticleID(id))
+		}
+		modelsGroups = append(modelsGroups, mg)
+	}
+
+	return operations.NewGetDuplicateGroupsOK().WithPayload(&operations.GetDuplicateGroupsOKBody{
+		DuplicateGroups: modelsGroups,
+	})
+}
+
+func modelsArticle(article model.Article) *models.Article {
 	const maxDuplicates = 100
 
 	duplicateIDs := make([]int64, 0, maxDuplicates)
@@ -73,7 +113,7 @@ func (h *Handler) modelsArticle(article model.Article) *models.Article {
 	}
 
 	return &models.Article{
-		ID:                  swag.Int64(int64(article.ID)),
+		ID:                  models.ArticleID(int64(article.ID)),
 		Content:             swag.String(article.Content),
 		DuplicateArticleIds: duplicateIDs,
 	}

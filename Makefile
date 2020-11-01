@@ -17,11 +17,14 @@ help:
 	@echo '    help               Show this help screen.'
 	@echo '    lint               Run linter.'
 	@echo '    swagger            Generate only swagger code.'
+	@echo '    swagger-doc        Serve swagger docs.'
 	@echo '    test               Run unit tests.'
 	@echo '    test-it            Run integration tests.'
 	@echo '    docker             Build docker image.'
 	@echo '    docker-run         Run docker image.'
 	@echo '    docker-dev         Build build, lint in docker image.'
+	@echo '    doc                Regenerate documentation.'
+	@echo '    doc-install        Install generator tool for docs.'
 	@echo ''
 	@echo 'Targets run by default are: clean format swagger build test'
 	@echo ''
@@ -58,7 +61,7 @@ SWAGGER          = $(GOBIN)/swagger
 SPEC             = $(MAKEFILE_PATH)/api/spec.yaml
 SWAGGER_GEN_PATH = $(MAKEFILE_PATH)/internal/swagger
 
-doc:
+swagger-doc:
 	@echo swagger doc
 	@$(SWAGGER) serve --flavor=swagger $(SPEC)
 
@@ -89,3 +92,11 @@ IMAGE_DEV = article-similarity-dev
 docker-dev:
 	@echo docker-dev
 	@docker build -t $(IMAGE_DEV) -f Dockerfile.build .
+
+doc:
+	@echo doc
+	@widdershins ./api/spec.yaml --code true --search false --language_tabs --outfile ./docs/API.md
+
+doc-install:
+	@echo doc install
+	@npm install -g widdershins

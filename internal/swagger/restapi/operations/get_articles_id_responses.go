@@ -104,7 +104,7 @@ func (o *GetArticlesIDBadRequest) WriteResponse(rw http.ResponseWriter, producer
 // GetArticlesIDNotFoundCode is the HTTP code returned for type GetArticlesIDNotFound
 const GetArticlesIDNotFoundCode int = 404
 
-/*GetArticlesIDNotFound Article not found
+/*GetArticlesIDNotFound Article not found.
 
 swagger:response getArticlesIdNotFound
 */

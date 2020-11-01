@@ -56,6 +56,37 @@ func (a *Article) ArticleByID(ctx context.Context, id int) (model.Article, error
 	return a.article(ctx, id, article.Content), nil
 }
 
+func (a *Article) UniqueArticles(ctx context.Context) ([]model.Article, error) {
+	return []model.Article{
+		{
+			ID:           1,
+			Content:      "hello, world",
+			DuplicateIDs: []int{3, 5},
+		},
+		{
+			ID:           2,
+			Content:      "two",
+			DuplicateIDs: []int{},
+		},
+		{
+			ID:           4,
+			Content:      "four",
+			DuplicateIDs: []int{},
+		},
+	}, nil
+}
+
+func (a *Article) DuplicateGroups(ctx context.Context) ([]model.DuplicateGroup, error) {
+	return []model.DuplicateGroup{
+		{
+			IDs: []int{1, 3, 5},
+		},
+		{
+			IDs: []int{7, 8, 9, 10, 11},
+		},
+	}, nil
+}
+
 func (a *Article) article(ctx context.Context, id int, content string) model.Article {
 	duplicateIDs, err := a.duplicateArticleIDs(ctx, id, content)
 	if err != nil {

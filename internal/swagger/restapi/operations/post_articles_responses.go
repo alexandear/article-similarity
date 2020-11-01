@@ -16,7 +16,7 @@ import (
 // PostArticlesCreatedCode is the HTTP code returned for type PostArticlesCreated
 const PostArticlesCreatedCode int = 201
 
-/*PostArticlesCreated Articled added.
+/*PostArticlesCreated Article added.
 
 swagger:response postArticlesCreated
 */

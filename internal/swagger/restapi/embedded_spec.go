@@ -33,6 +33,31 @@ func init() {
   "basePath": "/",
   "paths": {
     "/articles": {
+      "get": {
+        "summary": "Get unique articles.",
+        "responses": {
+          "200": {
+            "description": "OK.",
+            "schema": {
+              "type": "object",
+              "required": [
+                "articles"
+              ],
+              "properties": {
+                "articles": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Article"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
       "post": {
         "summary": "Add an article.",
         "parameters": [
@@ -56,7 +81,7 @@ func init() {
         ],
         "responses": {
           "201": {
-            "description": "Articled added.",
+            "description": "Article added.",
             "schema": {
               "$ref": "#/definitions/Article"
             }
@@ -91,9 +116,39 @@ func init() {
             "$ref": "#/responses/InvalidArgument"
           },
           "404": {
-            "description": "Article not found",
+            "description": "Article not found.",
             "schema": {
               "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/duplicate_groups": {
+      "get": {
+        "summary": "Get duplicate groups ids.",
+        "responses": {
+          "200": {
+            "description": "OK.",
+            "schema": {
+              "type": "object",
+              "required": [
+                "duplicate_groups"
+              ],
+              "properties": {
+                "duplicate_groups": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/definitions/ArticleId"
+                    }
+                  }
+                }
+              }
             }
           },
           "500": {
@@ -124,11 +179,14 @@ func init() {
           }
         },
         "id": {
-          "description": "Article id",
-          "type": "integer",
-          "format": "int64"
+          "$ref": "#/definitions/ArticleId"
         }
       }
+    },
+    "ArticleId": {
+      "description": "Article id",
+      "type": "integer",
+      "format": "int64"
     },
     "Error": {
       "type": "object",
@@ -185,6 +243,34 @@ func init() {
   "basePath": "/",
   "paths": {
     "/articles": {
+      "get": {
+        "summary": "Get unique articles.",
+        "responses": {
+          "200": {
+            "description": "OK.",
+            "schema": {
+              "type": "object",
+              "required": [
+                "articles"
+              ],
+              "properties": {
+                "articles": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Article"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
       "post": {
         "summary": "Add an article.",
         "parameters": [
@@ -208,7 +294,7 @@ func init() {
         ],
         "responses": {
           "201": {
-            "description": "Articled added.",
+            "description": "Article added.",
             "schema": {
               "$ref": "#/definitions/Article"
             }
@@ -255,9 +341,42 @@ func init() {
             }
           },
           "404": {
-            "description": "Article not found",
+            "description": "Article not found.",
             "schema": {
               "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/duplicate_groups": {
+      "get": {
+        "summary": "Get duplicate groups ids.",
+        "responses": {
+          "200": {
+            "description": "OK.",
+            "schema": {
+              "type": "object",
+              "required": [
+                "duplicate_groups"
+              ],
+              "properties": {
+                "duplicate_groups": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/definitions/ArticleId"
+                    }
+                  }
+                }
+              }
             }
           },
           "500": {
@@ -291,11 +410,14 @@ func init() {
           }
         },
         "id": {
-          "description": "Article id",
-          "type": "integer",
-          "format": "int64"
+          "$ref": "#/definitions/ArticleId"
         }
       }
+    },
+    "ArticleId": {
+      "description": "Article id",
+      "type": "integer",
+      "format": "int64"
     },
     "Error": {
       "type": "object",

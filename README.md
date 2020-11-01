@@ -14,7 +14,7 @@ API is accessible via `http://localhost:80/`.
 
 ## API docs
 
-API's description is in the [docs/api.md](./docs/api.md) file.
+API's description is in the [docs/API](./docs/API.md) file.
 
 Additionally, server serves HTML documentation. Run `docker-compose up` and visit http://localhost:80/docs.
 

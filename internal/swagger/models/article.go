@@ -25,9 +25,9 @@ type Article struct {
 	// Required: true
 	DuplicateArticleIds []int64 `json:"duplicate_article_ids"`
 
-	// Article id
+	// id
 	// Required: true
-	ID *int64 `json:"id"`
+	ID ArticleID `json:"id"`
 }
 
 // Validate validates this article
@@ -72,7 +72,10 @@ func (m *Article) validateDuplicateArticleIds(formats strfmt.Registry) error {
 
 func (m *Article) validateID(formats strfmt.Registry) error {
 
-	if err := validate.Required("id", "body", m.ID); err != nil {
+	if err := m.ID.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("id")
+		}
 		return err
 	}
 

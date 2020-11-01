@@ -5,3 +5,7 @@ type Article struct {
 	Content      string
 	DuplicateIDs []int
 }
+
+type DuplicateGroup struct {
+	IDs []int
+}
