@@ -49,7 +49,6 @@ func (s *Storage) CreateArticle(ctx context.Context, id int, content string, dup
 		Content:      content,
 		DuplicateIDs: duplicateIDs,
 		IsUnique:     isUnique,
-		CreatedAt:    time.Now(),
 	}
 
 	ma, err := bson.Marshal(&art)
@@ -59,6 +58,19 @@ func (s *Storage) CreateArticle(ctx context.Context, id int, content string, dup
 
 	if _, err := s.collectionArticle.InsertOne(ctx, ma); err != nil {
 		return errors.Wrap(err, "failed to insert")
+	}
+
+	return nil
+}
+
+func (s *Storage) UpdateArticle(ctx context.Context, id int, duplicateIDs []int) error {
+	filter := bson.D{{Key: "id", Value: id}}
+	update := bson.M{
+		"$set": bson.M{"duplicate_ids": duplicateIDs},
+	}
+
+	if err := s.collectionArticle.FindOneAndUpdate(ctx, filter, update, nil).Err(); err != nil {
+		return errors.Wrap(err, "failed to update")
 	}
 
 	return nil

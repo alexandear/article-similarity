@@ -33,68 +33,69 @@ func (s *e2eTestSuite) TearDownSuite() {
 
 func (s *e2eTestSuite) Test_EndToEnd_Ping() {
 	// GET / -> OK
-	reqPing := s.NewRequest(http.MethodGet, "/", ``)
-	respPing := s.DoRequest(reqPing)
-	s.EqualResponse(http.StatusOK, ``, respPing)
+	s.AssertRequestResponse(http.MethodGet, "/", ``, http.StatusOK, ``)
 }
 
 func (s *e2eTestSuite) Test_EndToEnd_CreateAndGetArticles() {
 	// GET /articles -> 200
-	reqGetUniqueEmpty := s.NewRequest(http.MethodGet, "/articles", "")
-	respGetUniqueEmpty := s.DoRequest(reqGetUniqueEmpty)
-	s.EqualResponse(http.StatusOK, `{"articles":[]}`, respGetUniqueEmpty)
+	s.AssertRequestResponse(http.MethodGet, "/articles", "",
+		http.StatusOK, `{"articles":[]}`)
 
 	// POST /articles {"content": "..."} -> 201
-	reqFirst := s.NewRequest(http.MethodPost, "/articles", `{"content":"hello world"}`)
-	respFirst := s.DoRequest(reqFirst)
-	s.EqualResponse(http.StatusCreated, `{"content":"hello world","duplicate_article_ids":[],"id":1}`, respFirst)
+	s.AssertRequestResponse(http.MethodPost, "/articles", `{"content":"first"}`,
+		http.StatusCreated, `{"content":"first","duplicate_article_ids":[],"id":1}`)
 
 	// POST /articles {"content": "..."} -> 201
-	reqDuplicate := s.NewRequest(http.MethodPost, "/articles", `{"content":"Hello a world!"}`)
-	respDuplicate := s.DoRequest(reqDuplicate)
-	s.EqualResponse(http.StatusCreated, `{"content":"Hello a world!","duplicate_article_ids":[1],"id":2}`, respDuplicate)
+	s.AssertRequestResponse(http.MethodPost, "/articles", `{"content":"First!"}`,
+		http.StatusCreated, `{"content":"First!","duplicate_article_ids":[1],"id":2}`)
+
+	// GET /articles/2 -> 200
+	s.AssertRequestResponse(http.MethodGet, "/articles/2", "",
+		http.StatusOK, `{"content":"First!","duplicate_article_ids":[1],"id":2}`)
 
 	// POST /articles {"content": "..."} -> 201
-	reqUnique := s.NewRequest(http.MethodPost, "/articles", `{"content":"unique"}`)
-	respUnique := s.DoRequest(reqUnique)
-	s.EqualResponse(http.StatusCreated, `{"content":"unique","duplicate_article_ids":[],"id":3}`, respUnique)
+	s.AssertRequestResponse(http.MethodPost, "/articles", `{"content":"second"}`,
+		http.StatusCreated, `{"content":"second","duplicate_article_ids":[],"id":3}`)
 
-	// GET /articles/1 -> 200
-	reqGetID := s.NewRequest(http.MethodGet, "/articles/2", "")
-	respGetID := s.DoRequest(reqGetID)
-	s.EqualResponse(http.StatusOK, `{"content":"Hello a world!","duplicate_article_ids":[1],"id":2}`, respGetID)
+	// POST /articles {"content": "..."} -> 201
+	s.AssertRequestResponse(http.MethodPost, "/articles", `{"content":"the first"}`,
+		http.StatusCreated, `{"content":"the first","duplicate_article_ids":[1,2],"id":4}`)
+
+	// GET /articles/2 -> 200
+	s.AssertRequestResponse(http.MethodGet, "/articles/2", "",
+		http.StatusOK, `{"content":"First!","duplicate_article_ids":[1,4],"id":2}`)
 
 	// GET /articles -> 200
-	reqGetUniqueNonEmpty := s.NewRequest(http.MethodGet, "/articles", "")
-	respGetUniqueNonEmpty := s.DoRequest(reqGetUniqueNonEmpty)
-	s.EqualResponse(http.StatusOK, `{"articles":[{"content":"hello world","duplicate_article_ids":[],"id":1},{"content":"unique","duplicate_article_ids":[],"id":3}]}`, respGetUniqueNonEmpty)
+	s.AssertRequestResponse(http.MethodGet, "/articles", "",
+		http.StatusOK, `{"articles":[{"content":"first","duplicate_article_ids":[],"id":1},{"content":"second","duplicate_article_ids":[],"id":3}]}`)
 }
 
 func (s *e2eTestSuite) Test_EndToEnd_Errors() {
 	// GET /articles/abc -> 400
-	reqWrongID := s.NewRequest(http.MethodGet, "/articles/abc", ``)
-	respWrongID := s.DoRequest(reqWrongID)
-	s.EqualResponse(http.StatusBadRequest, `{"code":601,"message":"id in path must be of type int64: \"abc\""}`, respWrongID)
+	s.AssertRequestResponse(http.MethodGet, "/articles/abc", ``,
+		http.StatusBadRequest, `{"code":601,"message":"id in path must be of type int64: \"abc\""}`)
 
 	// GET /articles/10000 -> 404
-	reqNotFound := s.NewRequest(http.MethodGet, "/articles/10000", ``)
-	respNotFound := s.DoRequest(reqNotFound)
-	s.EqualResponse(http.StatusNotFound, ``, respNotFound)
+	s.AssertRequestResponse(http.MethodGet, "/articles/10000", ``,
+		http.StatusNotFound, ``)
 
 	// POST /articles "" -> 400
-	reqNoBody := s.NewRequest(http.MethodPost, "/articles", ``)
-	respNoBody := s.DoRequest(reqNoBody)
-	s.EqualResponse(http.StatusBadRequest, `{"code":602,"message":"body in body is required"}`, respNoBody)
+	s.AssertRequestResponse(http.MethodPost, "/articles", ``,
+		http.StatusBadRequest, `{"code":602,"message":"body in body is required"}`)
 
 	// POST /articles {} -> 400
-	reqNoContent := s.NewRequest(http.MethodPost, "/articles", `{}`)
-	respNoContent := s.DoRequest(reqNoContent)
-	s.EqualResponse(http.StatusBadRequest, `{"code":602,"message":"body.content in body is required"}`, respNoContent)
+	s.AssertRequestResponse(http.MethodPost, "/articles", `{}`,
+		http.StatusBadRequest, `{"code":602,"message":"body.content in body is required"}`)
 
 	// POST /articles {"content": ""} -> 400
-	reqEmptyContent := s.NewRequest(http.MethodPost, "/articles", `{"content": ""}`)
-	respEmptyContent := s.DoRequest(reqEmptyContent)
-	s.EqualResponse(http.StatusBadRequest, `{"message":"empty content"}`, respEmptyContent)
+	s.AssertRequestResponse(http.MethodPost, "/articles", `{"content": ""}`,
+		http.StatusBadRequest, `{"message":"empty content"}`)
+}
+
+func (s *e2eTestSuite) AssertRequestResponse(reqMethod, reqPath, reqBody string, expectedStatus int, expectedBody string) {
+	req := s.NewRequest(reqMethod, reqPath, reqBody)
+	resp := s.DoRequest(req)
+	s.EqualResponse(expectedStatus, expectedBody, resp)
 }
 
 func (s *e2eTestSuite) NewRequest(method, path, body string) *http.Request {

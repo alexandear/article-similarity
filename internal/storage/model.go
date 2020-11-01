@@ -7,11 +7,10 @@ import (
 )
 
 type article struct {
-	ID           int       `bson:"id"`
-	Content      string    `bson:"content"`
-	DuplicateIDs []int     `bson:"duplicate_ids"`
-	IsUnique     bool      `bson:"is_unique"`
-	CreatedAt    time.Time `bson:"created_at"`
+	ID           int    `bson:"id"`
+	Content      string `bson:"content"`
+	DuplicateIDs []int  `bson:"duplicate_ids"`
+	IsUnique     bool   `bson:"is_unique"`
 }
 
 type autoincrement struct {

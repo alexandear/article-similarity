@@ -18,6 +18,7 @@ type Article struct {
 type Storage interface {
 	NextArticleID(ctx context.Context) (int, error)
 	CreateArticle(ctx context.Context, id int, content string, duplicateIDs []int, isUnique bool) error
+	UpdateArticle(ctx context.Context, id int, duplicateIDs []int) error
 	ArticleByID(ctx context.Context, id int) (model.Article, error)
 	AllArticles(ctx context.Context) ([]model.Article, error)
 	UniqueArticles(ctx context.Context) ([]model.Article, error)
@@ -51,12 +52,35 @@ func (a *Article) CreateArticle(ctx context.Context, content string) (model.Arti
 		return model.Article{}, errors.Wrap(err, "failed to create article")
 	}
 
+	if !isUnique {
+		a.updateArticlesWithDuplicateID(ctx, duplicateIDs, id)
+	}
+
 	return model.Article{
 		ID:           id,
 		Content:      content,
 		DuplicateIDs: duplicateIDs,
 		IsUnique:     isUnique,
 	}, nil
+}
+
+func (a *Article) updateArticlesWithDuplicateID(ctx context.Context, duplicateIDs []int, id int) {
+	for _, did := range duplicateIDs {
+		art, err := a.storage.ArticleByID(ctx, did)
+		if err != nil {
+			a.logger("failed to get article by id=%d: %v", did, err)
+
+			continue
+		}
+
+		if art.IsUnique {
+			continue
+		}
+
+		if err := a.storage.UpdateArticle(ctx, art.ID, append(art.DuplicateIDs, id)); err != nil {
+			a.logger("failed to update article=%d: %v", art.ID, err)
+		}
+	}
 }
 
 func (a *Article) ArticleByID(ctx context.Context, id int) (model.Article, error) {
