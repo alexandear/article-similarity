@@ -68,6 +68,14 @@ func (s *e2eTestSuite) Test_EndToEnd_CreateAndGetArticles() {
 	// GET /articles -> 200
 	s.AssertRequestResponse(http.MethodGet, "/articles", "",
 		http.StatusOK, `{"articles":[{"content":"first","duplicate_article_ids":[],"id":1},{"content":"second","duplicate_article_ids":[],"id":3}]}`)
+
+	// POST /articles {"content": "..."} -> 201
+	s.AssertRequestResponse(http.MethodPost, "/articles", `{"content":"go go go"}`,
+		http.StatusCreated, `{"content":"go go go","duplicate_article_ids":[],"id":5}`)
+
+	// POST /articles {"content": "..."} -> 201
+	s.AssertRequestResponse(http.MethodPost, "/articles", `{"content":"go went gone"}`,
+		http.StatusCreated, `{"content":"go went gone","duplicate_article_ids":[5],"id":6}`)
 }
 
 func (s *e2eTestSuite) Test_EndToEnd_Errors() {

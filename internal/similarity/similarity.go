@@ -9,12 +9,16 @@ import (
 type Similarity struct {
 	logger    func(format string, v ...interface{})
 	threshold float64
+
+	irregular IrregularVerb
 }
 
-func NewSimilarity(logger func(format string, v ...interface{}), threshold float64) *Similarity {
+func NewSimilarity(logger func(format string, v ...interface{}), threshold float64, irregular IrregularVerb,
+) *Similarity {
 	return &Similarity{
 		logger:    logger,
 		threshold: threshold,
+		irregular: irregular,
 	}
 }
 
@@ -31,11 +35,11 @@ func (s *Similarity) Similarity(idA int, contentA string, idB int, contentB stri
 
 	s.logger("normalizing %d", idA)
 
-	normA := normalizeAndReturnWords(contentA)
+	normA := s.normalizeAndReturnWords(contentA)
 
 	s.logger("normalizing %d", idB)
 
-	normB := normalizeAndReturnWords(contentB)
+	normB := s.normalizeAndReturnWords(contentB)
 
 	sim := lev.CompareSentence(normA, normB)
 
@@ -43,8 +47,8 @@ func (s *Similarity) Similarity(idA int, contentA string, idB int, contentB stri
 }
 
 // normalizeAndReturnWords removes non-alphanumeric character, splits by whitespace characters,
-// removes articles (a, an, the) and returns lowercase words.
-func normalizeAndReturnWords(content string) []string {
+// removes articles (a, an, the), change verbs to infinitives and returns lowercase words.
+func (s *Similarity) normalizeAndReturnWords(content string) []string {
 	modContent := string(util.Strip([]byte(content)))
 	modContent = strings.ToLower(modContent)
 	fields := strings.Fields(modContent)
@@ -57,7 +61,9 @@ func normalizeAndReturnWords(content string) []string {
 			continue
 		}
 
-		res = append(res, t)
+		verb := s.irregular.ToInfinitive(t)
+
+		res = append(res, verb)
 	}
 
 	return res

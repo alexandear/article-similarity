@@ -21,6 +21,8 @@ import (
 
 const (
 	defaultStorageConnectTimeout = 10 * time.Second
+
+	irregularVerbFilePath = "assets/irregular_verbs.csv"
 )
 
 type Server struct {
@@ -60,7 +62,12 @@ func New(
 
 	st := storage.New(mc, mongoDatabase)
 
-	art := article.New(logger, similarity.NewSimilarity(logger, similarityThreshold), st)
+	irregularVerb := similarity.IrregularVerb{}
+	if err := irregularVerb.Load(irregularVerbFilePath); err != nil {
+		logger("failed to load irregular verbs from=%s: %v", irregularVerbFilePath, err)
+	}
+
+	art := article.New(logger, similarity.NewSimilarity(logger, similarityThreshold, irregularVerb), st)
 
 	server := &Server{
 		rest:    rest,

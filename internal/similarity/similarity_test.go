@@ -58,7 +58,7 @@ func TestSimilarity_Similarity(t *testing.T) {
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
-			sim := NewSimilarity(t.Logf, 0.95)
+			sim := NewSimilarity(t.Logf, 0.95, IrregularVerb{})
 
 			res := sim.Similarity(tc.idA, tc.contentA, tc.idB, tc.contentB)
 
@@ -68,7 +68,7 @@ func TestSimilarity_Similarity(t *testing.T) {
 }
 
 func TestSimilarity_IsSimilar(t *testing.T) {
-	sim := NewSimilarity(t.Logf, 0.7)
+	sim := NewSimilarity(t.Logf, 0.7, IrregularVerb{})
 
 	res := sim.IsSimilar(1, "hello a very beautiful world", 2, "hello beautiful world")
 

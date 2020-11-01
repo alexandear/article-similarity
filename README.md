@@ -24,6 +24,8 @@ To find similarity between the content of articles used Levenshtein algorithm fo
 applied content preprocessing:
 - remove articles `a, an, the` and punctuation `.,!?-`;
 - content separated to word via whitespace characters ` \t\n\r`;
+- replace all irregular verbs to infinitive; irregular verbs are in the file 
+  [assets/irregular_verbs.csv](assets/irregular_verbs.csv).
 - text is lower-cased.
 
 Algorithm works for English content only.
