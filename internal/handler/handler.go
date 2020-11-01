@@ -6,8 +6,8 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/pkg/errors"
-	"go.mongodb.org/mongo-driver/mongo"
 
+	internalErrors "github.com/devchallenge/article-similarity/internal/errors"
 	"github.com/devchallenge/article-similarity/internal/model"
 	"github.com/devchallenge/article-similarity/internal/swagger/models"
 	"github.com/devchallenge/article-similarity/internal/swagger/restapi/operations"
@@ -53,7 +53,7 @@ func (h *Handler) PostArticles(params operations.PostArticlesParams) middleware.
 func (h *Handler) GetArticleByID(params operations.GetArticlesIDParams) middleware.Responder {
 	article, err := h.article.ArticleByID(params.HTTPRequest.Context(), int(params.ID))
 
-	if errors.Is(err, mongo.ErrNoDocuments) {
+	if errors.Is(err, internalErrors.ErrNotFound) {
 		return operations.NewGetArticlesIDNotFound()
 	}
 

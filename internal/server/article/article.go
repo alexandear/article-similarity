@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 
+	internalErrors "github.com/devchallenge/article-similarity/internal/errors"
 	"github.com/devchallenge/article-similarity/internal/model"
 	"github.com/devchallenge/article-similarity/internal/similarity"
 )
@@ -63,7 +64,7 @@ func (a *Article) ArticleByID(ctx context.Context, id int) (model.Article, error
 	res := a.mongo.Database(a.mongoDatabase).Collection(collectionArticles).
 		FindOne(ctx, bson.D{{Key: "id", Value: id}})
 	if errors.Is(res.Err(), mongo.ErrNoDocuments) {
-		return model.Article{}, errors.Wrap(mongo.ErrNoDocuments, "not found")
+		return model.Article{}, errors.Wrap(internalErrors.ErrNotFound, "not found")
 	}
 
 	if res.Err() != nil {
