@@ -82,6 +82,11 @@ func (s *e2eTestSuite) TearDownSuite() {
 }
 
 func (s *e2eTestSuite) Test_EndToEnd() {
+	// GET /
+	reqPing := s.NewRequest(http.MethodGet, "/", "")
+	respPing := s.DoRequest(reqPing)
+	s.EqualResponse(http.StatusOK, ``, respPing)
+
 	// POST /articles
 	reqFirst := s.NewRequest(http.MethodPost, "/articles", `{"content":"hello world"}`)
 	respFirst := s.DoRequest(reqFirst)

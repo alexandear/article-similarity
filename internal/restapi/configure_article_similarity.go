@@ -4,10 +4,10 @@ package restapi
 
 import (
 	"crypto/tls"
-	"log"
 	"net/http"
 
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/devchallenge/article-similarity/internal/restapi/operations"
 )
@@ -18,8 +18,10 @@ func configureFlags(api *operations.ArticleSimilarityAPI) {
 }
 
 func configureAPI(api *operations.ArticleSimilarityAPI) http.Handler {
+	middleware.Debug = true
+
 	api.ServeError = ServeError
-	api.Logger = log.Printf
+	api.Logger = middleware.Logger.Printf
 	api.UseRedoc()
 	api.JSONConsumer = runtime.JSONConsumer()
 	api.JSONProducer = runtime.JSONProducer()
@@ -50,12 +52,5 @@ func setupMiddlewares(handler http.Handler) http.Handler {
 // The middleware configuration happens before anything, this middleware also applies to serving
 // the swagger.json document. So this is a good place to plug in a panic handling middleware, logging and metrics.
 func setupGlobalMiddleware(handler http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/" {
-			w.WriteHeader(http.StatusOK)
-
-			return
-		}
-		handler.ServeHTTP(w, r)
-	})
+	return LogMiddleware(RootPathMiddleware(handler))
 }
