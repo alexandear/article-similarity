@@ -2,11 +2,10 @@ package util
 
 import (
 	"io"
-	"log"
 )
 
-func Close(closer io.Closer) {
+func Close(closer io.Closer, logger func(string, ...interface{})) {
 	if err := closer.Close(); err != nil {
-		log.Println("close failed: ", err)
+		logger("close failed: %v", err)
 	}
 }

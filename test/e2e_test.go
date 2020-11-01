@@ -9,7 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/devchallenge/article-similarity/internal/util"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -80,11 +79,12 @@ func (s *e2eTestSuite) DoRequest(req *http.Request) *http.Response {
 func (s *e2eTestSuite) EqualResponse(expectedStatusCode int, expectedBody string, actual *http.Response) {
 	s.Require().NotNil(actual)
 	s.Require().NotNil(actual.Body)
-	defer util.Close(actual.Body)
 
 	s.Equal(expectedStatusCode, actual.StatusCode)
 
 	byteBody, err := ioutil.ReadAll(actual.Body)
 	s.Require().NoError(err)
 	s.Equal(expectedBody, strings.Trim(string(byteBody), "\n"))
+
+	s.Require().NoError(actual.Body.Close())
 }

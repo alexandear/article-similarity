@@ -35,26 +35,28 @@ func BindEnv(fs *pflag.FlagSet) error {
 			return
 		}
 
-		if !set[f.Name] {
-			t := f.Value.Type()
-			if t == "stringArray" || t == "stringSlice" {
-				vals := strings.Split(val, " ")
-				for _, v := range vals {
-					if err := fs.Set(f.Name, v); err != nil {
-						flagError = errors.Wrapf(err, "wrapping %s with %v", f.Name, v)
+		if set[f.Name] {
+			return
+		}
 
-						return
-					}
+		t := f.Value.Type()
+		if t == "stringArray" || t == "stringSlice" {
+			vals := strings.Split(val, " ")
+			for _, v := range vals {
+				if err := fs.Set(f.Name, v); err != nil {
+					flagError = errors.Wrapf(err, "wrapping %s with %v", f.Name, v)
+
+					return
 				}
-
-				return
 			}
 
-			if err := fs.Set(f.Name, val); err != nil {
-				flagError = errors.Wrapf(err, "wrapping %s with %v", f.Name, val)
+			return
+		}
 
-				return
-			}
+		if err := fs.Set(f.Name, val); err != nil {
+			flagError = errors.Wrapf(err, "wrapping %s with %v", f.Name, val)
+
+			return
 		}
 	})
 
