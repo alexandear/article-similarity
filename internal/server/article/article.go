@@ -17,9 +17,10 @@ type Article struct {
 
 type Storage interface {
 	NextArticleID(ctx context.Context) (int, error)
-	CreateArticle(ctx context.Context, id int, content string, duplicateIDs []int) error
+	CreateArticle(ctx context.Context, id int, content string, duplicateIDs []int, isUnique bool) error
 	ArticleByID(ctx context.Context, id int) (model.Article, error)
 	AllArticles(ctx context.Context) ([]model.Article, error)
+	UniqueArticles(ctx context.Context) ([]model.Article, error)
 }
 
 func New(
@@ -45,7 +46,8 @@ func (a *Article) CreateArticle(ctx context.Context, content string) (model.Arti
 		a.logger("failed to find duplicate articles ids: %v", err)
 	}
 
-	if err := a.storage.CreateArticle(ctx, id, content, duplicateIDs); err != nil {
+	isUnique := len(duplicateIDs) == 0
+	if err := a.storage.CreateArticle(ctx, id, content, duplicateIDs, isUnique); err != nil {
 		return model.Article{}, errors.Wrap(err, "failed to create article")
 	}
 
@@ -53,6 +55,7 @@ func (a *Article) CreateArticle(ctx context.Context, content string) (model.Arti
 		ID:           id,
 		Content:      content,
 		DuplicateIDs: duplicateIDs,
+		IsUnique:     isUnique,
 	}, nil
 }
 
@@ -62,32 +65,16 @@ func (a *Article) ArticleByID(ctx context.Context, id int) (model.Article, error
 		return model.Article{}, errors.WithStack(err)
 	}
 
-	return model.Article{
-		ID:           article.ID,
-		Content:      article.Content,
-		DuplicateIDs: article.DuplicateIDs,
-	}, nil
+	return article, nil
 }
 
 func (a *Article) UniqueArticles(ctx context.Context) ([]model.Article, error) {
-	// nolint:gomnd // temp
-	return []model.Article{
-		{
-			ID:           1,
-			Content:      "hello, world",
-			DuplicateIDs: []int{3, 5},
-		},
-		{
-			ID:           2,
-			Content:      "two",
-			DuplicateIDs: []int{},
-		},
-		{
-			ID:           4,
-			Content:      "four",
-			DuplicateIDs: []int{},
-		},
-	}, nil
+	articles, err := a.storage.UniqueArticles(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get unique articles")
+	}
+
+	return articles, nil
 }
 
 func (a *Article) DuplicateGroups(ctx context.Context) ([]model.DuplicateGroup, error) {

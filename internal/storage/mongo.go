@@ -43,11 +43,12 @@ func (s *Storage) NextArticleID(ctx context.Context) (int, error) {
 	return inc.Counter, nil
 }
 
-func (s *Storage) CreateArticle(ctx context.Context, id int, content string, duplicateIDs []int) error {
+func (s *Storage) CreateArticle(ctx context.Context, id int, content string, duplicateIDs []int, isUnique bool) error {
 	art := article{
 		ID:           id,
 		Content:      content,
 		DuplicateIDs: duplicateIDs,
+		IsUnique:     isUnique,
 		CreatedAt:    time.Now(),
 	}
 
@@ -82,11 +83,19 @@ func (s *Storage) ArticleByID(ctx context.Context, id int) (model.Article, error
 }
 
 func (s *Storage) AllArticles(ctx context.Context) ([]model.Article, error) {
+	return s.articles(ctx, bson.D{})
+}
+
+func (s *Storage) UniqueArticles(ctx context.Context) ([]model.Article, error) {
+	return s.articles(ctx, bson.D{{Key: "is_unique", Value: true}})
+}
+
+func (s *Storage) articles(ctx context.Context, filter bson.D) ([]model.Article, error) {
 	articles := make([]model.Article, 0, maxArticles)
 
-	cur, err := s.collectionArticle.Find(ctx, bson.D{})
+	cur, err := s.collectionArticle.Find(ctx, filter)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to find all documents")
+		return nil, errors.Wrap(err, "failed to find documents")
 	}
 
 	for cur.TryNext(ctx) && len(articles) != maxArticles {
@@ -106,6 +115,7 @@ func toModelArticle(art article) model.Article {
 		ID:           art.ID,
 		Content:      art.Content,
 		DuplicateIDs: art.DuplicateIDs,
+		IsUnique:     art.IsUnique,
 	}
 }
 

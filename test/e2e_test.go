@@ -39,6 +39,11 @@ func (s *e2eTestSuite) Test_EndToEnd_Ping() {
 }
 
 func (s *e2eTestSuite) Test_EndToEnd_CreateAndGetArticles() {
+	// GET /articles -> 200
+	reqGetUniqueEmpty := s.NewRequest(http.MethodGet, "/articles", "")
+	respGetUniqueEmpty := s.DoRequest(reqGetUniqueEmpty)
+	s.EqualResponse(http.StatusOK, `{"articles":[]}`, respGetUniqueEmpty)
+
 	// POST /articles {"content": "..."} -> 201
 	reqFirst := s.NewRequest(http.MethodPost, "/articles", `{"content":"hello world"}`)
 	respFirst := s.DoRequest(reqFirst)
@@ -55,9 +60,14 @@ func (s *e2eTestSuite) Test_EndToEnd_CreateAndGetArticles() {
 	s.EqualResponse(http.StatusCreated, `{"content":"unique","duplicate_article_ids":[],"id":3}`, respUnique)
 
 	// GET /articles/1 -> 200
-	reqGet := s.NewRequest(http.MethodGet, "/articles/2", "")
-	respGet := s.DoRequest(reqGet)
-	s.EqualResponse(http.StatusOK, `{"content":"Hello a world!","duplicate_article_ids":[1],"id":2}`, respGet)
+	reqGetID := s.NewRequest(http.MethodGet, "/articles/2", "")
+	respGetID := s.DoRequest(reqGetID)
+	s.EqualResponse(http.StatusOK, `{"content":"Hello a world!","duplicate_article_ids":[1],"id":2}`, respGetID)
+
+	// GET /articles -> 200
+	reqGetUniqueNonEmpty := s.NewRequest(http.MethodGet, "/articles", "")
+	respGetUniqueNonEmpty := s.DoRequest(reqGetUniqueNonEmpty)
+	s.EqualResponse(http.StatusOK, `{"articles":[{"content":"hello world","duplicate_article_ids":[],"id":1},{"content":"unique","duplicate_article_ids":[],"id":3}]}`, respGetUniqueNonEmpty)
 }
 
 func (s *e2eTestSuite) Test_EndToEnd_Errors() {
