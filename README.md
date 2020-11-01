@@ -4,7 +4,7 @@ HTTP server to store and search similar articles.
 
 ## Getting started
 
-Build and run server with Compose:
+Run server and storage containers with Compose:
 
 ```shell
 docker-compose up
@@ -28,9 +28,13 @@ applied content preprocessing:
 
 Algorithm works for English content only.
 
+## Technologies
+
+There are HTTP server written on Golang and `mongodb` storage.
+
 ## Development
 
-> Prerequisites: install `go@1.15` compiler and `make`.
+> Prerequisites: `docker`, `docker-compose`, `go@1.15`, `make` must be installed.
 
 ### Code style
 
@@ -50,7 +54,7 @@ make lint
 
 ### Tests
 
-There are unit and end-to-end tests. Unit and integration tests placed in `_test.go` files,
+There are unit and integration tests. Unit tests placed in `_test.go` files,
 end-to-end in `test` directory.
 
 Run unit tests:
@@ -59,7 +63,8 @@ Run unit tests:
 make test
 ```
 
-Run end-to-end tests:
+End-to-end test suite builds server from sources, runs `docker-compose up` and perform requests to server container.
+It can be executed:
 
 ```shell
 make test-it
@@ -78,3 +83,8 @@ Build, run linter and tests in dev docker image `article-similarity-dev:latest`:
 ```shell
 make docker-dev
 ```
+
+### CI
+
+There are configured GitHub actions for build, lint, run unit and integration tests. 
+See [.github/workflows](.github/workflows) directory.
