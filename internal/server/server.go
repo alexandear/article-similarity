@@ -12,6 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/devchallenge/article-similarity/internal/handler"
+	"github.com/devchallenge/article-similarity/internal/server/article"
 	"github.com/devchallenge/article-similarity/internal/similarity"
 	"github.com/devchallenge/article-similarity/internal/swagger/restapi"
 	"github.com/devchallenge/article-similarity/internal/swagger/restapi/operations"
@@ -22,8 +23,9 @@ const (
 )
 
 type Server struct {
-	rest  *restapi.Server
-	mongo *mongo.Client
+	rest    *restapi.Server
+	mongo   *mongo.Client
+	article *article.Article
 }
 
 func New(
@@ -55,14 +57,15 @@ func New(
 		return nil, errors.WithStack(err)
 	}
 
+	art := article.New(logger, similarity.NewSimilarity(logger, similarityThreshold), mc, mongoDatabase)
+
 	server := &Server{
-		rest:  rest,
-		mongo: mc,
+		rest:    rest,
+		mongo:   mc,
+		article: art,
 	}
 
-	sim := similarity.NewSimilarity(logger, similarityThreshold)
-
-	h := handler.New(logger, mc, mongoDatabase, sim)
+	h := handler.New(art)
 	h.ConfigureHandlers(api)
 	rest.ConfigureAPI()
 
