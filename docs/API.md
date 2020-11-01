@@ -34,7 +34,7 @@ Base URLs:
 
 ```json
 {
-  "content": "string"
+  "content": "Hello, a world!"
 }
 ```
 
@@ -48,6 +48,19 @@ Base URLs:
 > Example responses
 
 > 201 Response
+
+> Article added.
+
+```json
+{
+  "id": 1,
+  "content": "...",
+  "duplicate_article_ids": [
+    2,
+    3
+  ]
+}
+```
 
 <h3 id="post__articles-responses">Responses</h3>
 
@@ -70,6 +83,33 @@ This operation does not require authentication
 > Example responses
 
 > 200 Response
+
+> OK.
+
+```json
+{
+  "articles": [
+    {
+      "id": 1,
+      "content": "...",
+      "duplicate_article_ids": [
+        3,
+        5
+      ]
+    },
+    {
+      "id": 2,
+      "content": "...",
+      "duplicate_article_ids": []
+    },
+    {
+      "id": 4,
+      "content": "...",
+      "duplicate_article_ids": []
+    }
+  ]
+}
+```
 
 <h3 id="get__articles-responses">Responses</h3>
 
@@ -109,6 +149,19 @@ This operation does not require authentication
 
 > 200 Response
 
+> OK
+
+```json
+{
+  "id": 1,
+  "content": "...",
+  "duplicate_article_ids": [
+    2,
+    3
+  ]
+}
+```
+
 <h3 id="get__articles_{id}-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
@@ -131,6 +184,24 @@ This operation does not require authentication
 > Example responses
 
 > 200 Response
+
+> OK.
+
+```json
+{
+  "duplicate_groups": [
+    [
+      1,
+      3,
+      5
+    ],
+    [
+      7,
+      8
+    ]
+  ]
+}
+```
 
 <h3 id="get__duplicate_groups-responses">Responses</h3>
 
@@ -162,8 +233,8 @@ This operation does not require authentication
 
 ```json
 {
-  "code": 0,
-  "message": "string"
+  "code": 602,
+  "message": "body in body is required"
 }
 
 ```
@@ -183,7 +254,7 @@ This operation does not require authentication
 <a id="tocsarticleid"></a>
 
 ```json
-0
+1
 
 ```
 
@@ -204,10 +275,11 @@ Article id
 
 ```json
 {
-  "id": 0,
-  "content": "string",
+  "id": 1,
+  "content": "Hello, a world!",
   "duplicate_article_ids": [
-    0
+    3,
+    4
   ]
 }
 

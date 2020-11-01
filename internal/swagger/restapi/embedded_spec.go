@@ -51,6 +51,30 @@ func init() {
                   }
                 }
               }
+            },
+            "examples": {
+              "application/json": {
+                "articles": [
+                  {
+                    "content": "...",
+                    "duplicate_article_ids": [
+                      3,
+                      5
+                    ],
+                    "id": 1
+                  },
+                  {
+                    "content": "...",
+                    "duplicate_article_ids": null,
+                    "id": 2
+                  },
+                  {
+                    "content": "...",
+                    "duplicate_article_ids": null,
+                    "id": 4
+                  }
+                ]
+              }
             }
           },
           "500": {
@@ -75,6 +99,9 @@ func init() {
                   "description": "Article content",
                   "type": "string"
                 }
+              },
+              "example": {
+                "content": "Hello, a world!"
               }
             }
           }
@@ -84,6 +111,16 @@ func init() {
             "description": "Article added.",
             "schema": {
               "$ref": "#/definitions/Article"
+            },
+            "examples": {
+              "application/json": {
+                "content": "...",
+                "duplicate_article_ids": [
+                  2,
+                  3
+                ],
+                "id": 1
+              }
             }
           },
           "400": {
@@ -110,7 +147,20 @@ func init() {
         ],
         "responses": {
           "200": {
-            "$ref": "#/responses/ArticleOk"
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Article"
+            },
+            "examples": {
+              "application/json": {
+                "content": "...",
+                "duplicate_article_ids": [
+                  2,
+                  3
+                ],
+                "id": 1
+              }
+            }
           },
           "400": {
             "$ref": "#/responses/InvalidArgument"
@@ -149,6 +199,21 @@ func init() {
                   }
                 }
               }
+            },
+            "examples": {
+              "application/json": {
+                "duplicate_groups": [
+                  [
+                    1,
+                    3,
+                    5
+                  ],
+                  [
+                    7,
+                    8
+                  ]
+                ]
+              }
             }
           },
           "500": {
@@ -181,12 +246,21 @@ func init() {
         "id": {
           "$ref": "#/definitions/ArticleId"
         }
+      },
+      "example": {
+        "content": "Hello, a world!",
+        "duplicate_article_ids": [
+          3,
+          4
+        ],
+        "id": 1
       }
     },
     "ArticleId": {
       "description": "Article id",
       "type": "integer",
-      "format": "int64"
+      "format": "int64",
+      "example": 1
     },
     "Error": {
       "type": "object",
@@ -203,16 +277,14 @@ func init() {
           "description": "Human-readable error message",
           "type": "string"
         }
+      },
+      "example": {
+        "code": 602,
+        "message": "body in body is required"
       }
     }
   },
   "responses": {
-    "ArticleOk": {
-      "description": "OK",
-      "schema": {
-        "$ref": "#/definitions/Article"
-      }
-    },
     "InvalidArgument": {
       "description": "Invalid arguments",
       "schema": {
@@ -261,6 +333,30 @@ func init() {
                   }
                 }
               }
+            },
+            "examples": {
+              "application/json": {
+                "articles": [
+                  {
+                    "content": "...",
+                    "duplicate_article_ids": [
+                      3,
+                      5
+                    ],
+                    "id": 1
+                  },
+                  {
+                    "content": "...",
+                    "duplicate_article_ids": [],
+                    "id": 2
+                  },
+                  {
+                    "content": "...",
+                    "duplicate_article_ids": [],
+                    "id": 4
+                  }
+                ]
+              }
             }
           },
           "500": {
@@ -288,6 +384,9 @@ func init() {
                   "description": "Article content",
                   "type": "string"
                 }
+              },
+              "example": {
+                "content": "Hello, a world!"
               }
             }
           }
@@ -297,6 +396,16 @@ func init() {
             "description": "Article added.",
             "schema": {
               "$ref": "#/definitions/Article"
+            },
+            "examples": {
+              "application/json": {
+                "content": "...",
+                "duplicate_article_ids": [
+                  2,
+                  3
+                ],
+                "id": 1
+              }
             }
           },
           "400": {
@@ -332,6 +441,16 @@ func init() {
             "description": "OK",
             "schema": {
               "$ref": "#/definitions/Article"
+            },
+            "examples": {
+              "application/json": {
+                "content": "...",
+                "duplicate_article_ids": [
+                  2,
+                  3
+                ],
+                "id": 1
+              }
             }
           },
           "400": {
@@ -377,6 +496,21 @@ func init() {
                   }
                 }
               }
+            },
+            "examples": {
+              "application/json": {
+                "duplicate_groups": [
+                  [
+                    1,
+                    3,
+                    5
+                  ],
+                  [
+                    7,
+                    8
+                  ]
+                ]
+              }
             }
           },
           "500": {
@@ -412,12 +546,21 @@ func init() {
         "id": {
           "$ref": "#/definitions/ArticleId"
         }
+      },
+      "example": {
+        "content": "Hello, a world!",
+        "duplicate_article_ids": [
+          3,
+          4
+        ],
+        "id": 1
       }
     },
     "ArticleId": {
       "description": "Article id",
       "type": "integer",
-      "format": "int64"
+      "format": "int64",
+      "example": 1
     },
     "Error": {
       "type": "object",
@@ -434,16 +577,14 @@ func init() {
           "description": "Human-readable error message",
           "type": "string"
         }
+      },
+      "example": {
+        "code": 602,
+        "message": "body in body is required"
       }
     }
   },
   "responses": {
-    "ArticleOk": {
-      "description": "OK",
-      "schema": {
-        "$ref": "#/definitions/Article"
-      }
-    },
     "InvalidArgument": {
       "description": "Invalid arguments",
       "schema": {

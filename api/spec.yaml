@@ -24,12 +24,17 @@ paths:
               content:
                 description: Article content
                 type: string
+            example:
+              content: "Hello, a world!"
           required: true
       responses:
         201:
           description: Article added.
           schema:
             $ref: "#/definitions/Article"
+          examples:
+            application/json:
+              { "id": 1, "content": "...", "duplicate_article_ids": [2, 3] }
         400:
           $ref: "#/responses/InvalidArgument"
         500:
@@ -49,6 +54,15 @@ paths:
                   $ref: "#/definitions/Article"
             required:
               - articles
+          examples:
+            application/json:
+              {
+                "articles": [
+                  { "id": 1, "content": "...", "duplicate_article_ids": [3, 5] },
+                  { "id": 2, "content": "...", "duplicate_article_ids": [] },
+                  { "id": 4, "content": "...", "duplicate_article_ids": [] }
+                ]
+              }
         500:
           $ref: "#/responses/ServerError"
 
@@ -64,7 +78,12 @@ paths:
           required: true
       responses:
         200:
-          $ref: "#/responses/ArticleOk"
+          description: OK
+          schema:
+            $ref: "#/definitions/Article"
+          examples:
+            application/json:
+              { "id": 1, "content": "...", "duplicate_article_ids": [2, 3] }
         400:
           $ref: "#/responses/InvalidArgument"
         404:
@@ -91,6 +110,11 @@ paths:
                     $ref: "#/definitions/ArticleId"
             required:
               - duplicate_groups
+          examples:
+            application/json:
+              {
+                "duplicate_groups": [ [1, 3, 5], [7, 8] ]
+              }
         500:
           $ref: "#/responses/ServerError"
 
@@ -105,6 +129,9 @@ definitions:
       message:
         description: Human-readable error message
         type: string
+    example:
+      code: 602
+      message: body in body is required
     required:
       - message
 
@@ -112,6 +139,7 @@ definitions:
     description: Article id
     type: integer
     format: int64
+    example: 1
 
   Article:
     type: object
@@ -126,17 +154,16 @@ definitions:
         type: array
         items:
           type: integer
+    example:
+      id: 1
+      content: "Hello, a world!"
+      duplicate_article_ids: [3, 4]
     required:
       - id
       - content
       - duplicate_article_ids
 
 responses:
-  ArticleOk:
-    description: OK
-    schema:
-      $ref: "#/definitions/Article"
-
   InvalidArgument:
     description: Invalid arguments
     schema:
