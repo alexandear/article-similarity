@@ -1,20 +1,32 @@
 package restapi
 
 import (
+	"context"
+	"fmt"
+	"time"
+
 	"github.com/go-openapi/loads"
-	"github.com/kelseyhightower/memkv"
+	"github.com/hashicorp/go-multierror"
 	"github.com/pkg/errors"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/devchallenge/article-similarity/internal/handler"
 	"github.com/devchallenge/article-similarity/internal/restapi/operations"
 	"github.com/devchallenge/article-similarity/internal/similarity"
 )
 
+const (
+	defaultStorageConnectTimeout = 10 * time.Second
+)
+
 type ArticleServer struct {
-	rest *Server
+	rest  *Server
+	mongo *mongo.Client
 }
 
-func NewArticleServer(logger func(string, ...interface{}), similarityThreshold float64) (*ArticleServer, error) {
+func NewArticleServer(logger func(string, ...interface{}), mongoHost string, mongoPort int, mongoDatabase string,
+	similarityThreshold float64) (*ArticleServer, error) {
 	swaggerSpec, err := loads.Embedded(SwaggerJSON, FlatSwaggerJSON)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to embedded spec")
@@ -22,14 +34,30 @@ func NewArticleServer(logger func(string, ...interface{}), similarityThreshold f
 
 	api := operations.NewArticleSimilarityAPI(swaggerSpec)
 	rest := NewServer(api)
-	server := &ArticleServer{
-		rest: rest,
+
+	mongoURI := fmt.Sprintf("mongodb://%s:%d", mongoHost, mongoPort)
+	logger("mongoURI: %s", mongoURI)
+
+	mc, err := mongo.NewClient(options.Client().ApplyURI(mongoURI))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create mongo")
 	}
 
-	store := memkv.New()
+	ctx, cancel := context.WithTimeout(context.Background(), defaultStorageConnectTimeout)
+	defer cancel()
+
+	if err := mc.Connect(ctx); err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	server := &ArticleServer{
+		rest:  rest,
+		mongo: mc,
+	}
+
 	sim := similarity.NewSimilarity(logger, similarityThreshold)
 
-	h := handler.New(&store, sim)
+	h := handler.New(mc, mongoDatabase, sim)
 	h.ConfigureHandlers(api)
 	rest.ConfigureAPI()
 	rest.api.Logger = logger
@@ -42,5 +70,17 @@ func (s *ArticleServer) Serve() error {
 }
 
 func (s *ArticleServer) Close() error {
-	return s.rest.Shutdown()
+	var resErr error
+	if err := s.rest.Shutdown(); err != nil {
+		resErr = multierror.Append(err)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), defaultStorageConnectTimeout)
+	defer cancel()
+
+	if err := s.mongo.Disconnect(ctx); err != nil {
+		resErr = multierror.Append(err)
+	}
+
+	return errors.WithStack(resErr)
 }

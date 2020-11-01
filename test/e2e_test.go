@@ -3,29 +3,18 @@ package test
 import (
 	"fmt"
 	"io/ioutil"
-	"math/rand"
 	"net/http"
-	"os"
-	"path"
-	"path/filepath"
-	"strconv"
+	"os/exec"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/ory/dockertest/v3"
-	"github.com/ory/dockertest/v3/docker"
-	"github.com/pkg/errors"
-	"github.com/stretchr/testify/suite"
-
 	"github.com/devchallenge/article-similarity/internal/util"
+	"github.com/stretchr/testify/suite"
 )
 
 type e2eTestSuite struct {
 	suite.Suite
-	serverPort string
-	pool       *dockertest.Pool
-	resources  []*dockertest.Resource
 }
 
 func TestE2ETestSuite(t *testing.T) {
@@ -33,52 +22,14 @@ func TestE2ETestSuite(t *testing.T) {
 }
 
 func (s *e2eTestSuite) SetupSuite() {
-	rand.Seed(time.Now().Unix())
+	cmd := exec.Command("docker-compose", "up", "-d")
+	s.Require().NoError(cmd.Run())
 
-	pool, err := dockertest.NewPool("")
-	s.Require().NoError(err)
-	s.pool = pool
-
-	s.Require().NoError(s.setupServer(s.pool))
-}
-
-func (s *e2eTestSuite) setupServer(pool *dockertest.Pool) error {
-	ex, err := os.Getwd()
-	if err != nil {
-		return errors.Wrap(err, "failed to get current directory")
-	}
-	dockerfilePath := path.Join(filepath.Dir(ex), "Dockerfile")
-
-	port := freePort()
-	portStr := strconv.Itoa(port)
-
-	options := &dockertest.RunOptions{
-		Name:         "article-similarity",
-		Repository:   "article-similarity",
-		Tag:          "latest",
-		ExposedPorts: []string{portStr},
-		Env:          []string{"PORT=" + portStr},
-		PortBindings: map[docker.Port][]docker.PortBinding{docker.Port(portStr): {{HostPort: portStr}}},
-	}
-
-	resource, err := pool.BuildAndRunWithOptions(dockerfilePath, options)
-	if err != nil {
-		return errors.Wrap(err, "failed to build and run")
-	}
-
-	if err := pool.Retry(defaultRetryFunc(port)); err != nil {
-		return errors.Wrap(err, "failed to retry")
-	}
-
-	s.resources = append(s.resources, resource)
-	s.serverPort = portStr
-	return nil
+	time.Sleep(3 * time.Second)
 }
 
 func (s *e2eTestSuite) TearDownSuite() {
-	for _, r := range s.resources {
-		s.NoError(s.pool.Purge(r))
-	}
+	s.Require().NoError(exec.Command("docker-compose", "down").Run())
 }
 
 func (s *e2eTestSuite) Test_EndToEnd() {
@@ -90,26 +41,26 @@ func (s *e2eTestSuite) Test_EndToEnd() {
 	// POST /articles
 	reqFirst := s.NewRequest(http.MethodPost, "/articles", `{"content":"hello world"}`)
 	respFirst := s.DoRequest(reqFirst)
-	s.EqualResponse(http.StatusCreated, `{"content":"hello world","duplicate_article_ids":[],"id":0}`, respFirst)
+	s.EqualResponse(http.StatusCreated, `{"content":"hello world","duplicate_article_ids":[],"id":1}`, respFirst)
 
 	// POST /articles
 	reqDuplicate := s.NewRequest(http.MethodPost, "/articles", `{"content":"Hello a world!"}`)
 	respDuplicate := s.DoRequest(reqDuplicate)
-	s.EqualResponse(http.StatusCreated, `{"content":"Hello a world!","duplicate_article_ids":[0],"id":1}`, respDuplicate)
+	s.EqualResponse(http.StatusCreated, `{"content":"Hello a world!","duplicate_article_ids":[1],"id":2}`, respDuplicate)
 
 	// POST /articles
 	reqUnique := s.NewRequest(http.MethodPost, "/articles", `{"content":"unique"}`)
 	respUnique := s.DoRequest(reqUnique)
-	s.EqualResponse(http.StatusCreated, `{"content":"unique","duplicate_article_ids":[],"id":2}`, respUnique)
+	s.EqualResponse(http.StatusCreated, `{"content":"unique","duplicate_article_ids":[],"id":3}`, respUnique)
 
 	// GET /articles/1
-	reqGet := s.NewRequest(http.MethodGet, "/articles/1", "")
+	reqGet := s.NewRequest(http.MethodGet, "/articles/2", "")
 	respGet := s.DoRequest(reqGet)
-	s.EqualResponse(http.StatusOK, `{"content":"Hello a world!","duplicate_article_ids":[0],"id":1}`, respGet)
+	s.EqualResponse(http.StatusOK, `{"content":"Hello a world!","duplicate_article_ids":[1],"id":2}`, respGet)
 }
 
 func (s *e2eTestSuite) NewRequest(method, path, body string) *http.Request {
-	req, err := http.NewRequest(method, fmt.Sprintf("http://localhost:%s%s", s.serverPort, path), strings.NewReader(body))
+	req, err := http.NewRequest(method, fmt.Sprintf("http://localhost:80%s", path), strings.NewReader(body))
 	s.Require().NoError(err)
 	req.Header.Set("Content-Type", "application/json")
 
