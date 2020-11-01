@@ -5,7 +5,7 @@ RUN apk update && apk upgrade && apk add --update alpine-sdk && \
 
 WORKDIR ./src/github.com/devchallenge/article-similarity
 
-COPY ./assets /usr/local/bin/assets
+COPY ./assets /assets
 
 COPY go.* ./
 RUN go mod download
@@ -17,7 +17,7 @@ RUN make build && cp ./bin/article-similarity /usr/local/bin/
 FROM alpine
 
 COPY --from=build /usr/local/bin/ /usr/local/bin/
-COPY --from=build /usr/local/bin ./
+COPY --from=build /assets ./assets
 
 ENV HOST 0.0.0.0
 
