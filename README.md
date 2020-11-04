@@ -20,11 +20,11 @@ Additionally, server serves HTML documentation. Run `docker-compose up` and visi
 
 ## Similarity algorithm
 
-To find similarity between the content of articles used Levenshtein algorithm for words. Before Levenshtein algorithm is 
+To find similarity between the content of articles used Levenshtein algorithm for words. Before Levenshtein algorithm is
 applied content preprocessing:
 - remove articles `a, an, the` and punctuation `.,!?-`;
 - content separated to word via whitespace characters ` \t\n\r`;
-- replace all irregular verbs to infinitive; irregular verbs are in the file 
+- replace all irregular verbs to infinitive; irregular verbs are in the file;
   [assets/irregular_verbs.csv](assets/irregular_verbs.csv).
 - text is lower-cased.
 
@@ -44,7 +44,7 @@ There are HTTP server written on Golang and `mongodb` storage.
 
 ### Code style
 
-Consistent code style enforced by `gofmt`  and `golangci-lint` linters.
+Consistent code style enforced by `gofmt`, `EditorConfig` tools and `golangci-lint` linter.
 
 Format code:
 
@@ -92,5 +92,5 @@ make docker-dev
 
 ### CI
 
-There are configured GitHub actions for build, lint, run unit and integration tests. 
+There are configured GitHub actions for build, lint, run unit and integration tests.
 See [.github/workflows](.github/workflows) directory.
