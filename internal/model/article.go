@@ -1,12 +1,19 @@
 package model
 
+type (
+	ArticleID        int
+	DuplicateGroupID int
+)
+
 type Article struct {
-	ID           int
-	Content      string
-	DuplicateIDs []int
-	IsUnique     bool
+	ID               ArticleID
+	Content          string
+	DuplicateIDs     []ArticleID
+	IsUnique         bool
+	DuplicateGroupID DuplicateGroupID
 }
 
 type DuplicateGroup struct {
-	IDs []int
+	DuplicateGroupID DuplicateGroupID
+	ArticleID        ArticleID
 }

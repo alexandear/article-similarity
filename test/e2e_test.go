@@ -36,7 +36,7 @@ func (s *e2eTestSuite) Test_EndToEnd_Ping() {
 	s.AssertRequestResponse(http.MethodGet, "/", ``, http.StatusOK, ``)
 }
 
-func (s *e2eTestSuite) Test_EndToEnd_CreateAndGetArticles() {
+func (s *e2eTestSuite) Test_EndToEnd_Success() {
 	// GET /articles -> 200
 	s.AssertRequestResponse(http.MethodGet, "/articles", "",
 		http.StatusOK, `{"articles":[]}`)
@@ -76,6 +76,10 @@ func (s *e2eTestSuite) Test_EndToEnd_CreateAndGetArticles() {
 	// POST /articles {"content": "..."} -> 201
 	s.AssertRequestResponse(http.MethodPost, "/articles", `{"content":"go went gone"}`,
 		http.StatusCreated, `{"content":"go went gone","duplicate_article_ids":[5],"id":6}`)
+
+	// GET /duplicate_groups -> 200
+	s.AssertRequestResponse(http.MethodGet, "/duplicate_groups", ``,
+		http.StatusOK, `{"duplicate_groups":[[1,2,4],[5,6]]}`)
 }
 
 func (s *e2eTestSuite) Test_EndToEnd_Errors() {
@@ -98,10 +102,6 @@ func (s *e2eTestSuite) Test_EndToEnd_Errors() {
 	// POST /articles {"content": ""} -> 400
 	s.AssertRequestResponse(http.MethodPost, "/articles", `{"content": ""}`,
 		http.StatusBadRequest, `{"message":"empty content"}`)
-
-	// GET /duplicate_groups -> 501
-	s.AssertRequestResponse(http.MethodGet, "/duplicate_groups", ``,
-		http.StatusNotImplemented, `"operation GetDuplicateGroups has not yet been implemented"`)
 }
 
 func (s *e2eTestSuite) AssertRequestResponse(reqMethod, reqPath, reqBody string, expectedStatus int, expectedBody string) {

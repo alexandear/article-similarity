@@ -20,8 +20,9 @@ const (
 
 type ArticleServer interface {
 	CreateArticle(ctx context.Context, content string) (model.Article, error)
-	ArticleByID(ctx context.Context, id int) (model.Article, error)
+	ArticleByID(ctx context.Context, id model.ArticleID) (model.Article, error)
 	UniqueArticles(ctx context.Context) ([]model.Article, error)
+	DuplicateGroups(ctx context.Context) (map[model.DuplicateGroupID][]model.ArticleID, error)
 }
 
 type Handler struct {
@@ -38,6 +39,7 @@ func (h *Handler) ConfigureHandlers(api *operations.ArticleSimilarityAPI) {
 	api.PostArticlesHandler = operations.PostArticlesHandlerFunc(h.PostArticles)
 	api.GetArticlesIDHandler = operations.GetArticlesIDHandlerFunc(h.GetArticleByID)
 	api.GetArticlesHandler = operations.GetArticlesHandlerFunc(h.GetUniqueArticles)
+	api.GetDuplicateGroupsHandler = operations.GetDuplicateGroupsHandlerFunc(h.GetDuplicateGroups)
 }
 
 func (h *Handler) PostArticles(params operations.PostArticlesParams) middleware.Responder {
@@ -64,7 +66,7 @@ func (h *Handler) GetArticleByID(params operations.GetArticlesIDParams) middlewa
 	ctx, cancel := context.WithTimeout(params.HTTPRequest.Context(), serverTimeout)
 	defer cancel()
 
-	article, err := h.article.ArticleByID(ctx, int(params.ID))
+	article, err := h.article.ArticleByID(ctx, model.ArticleID(params.ID))
 
 	if errors.Is(err, internalErrors.ErrNotFound) {
 		return operations.NewGetArticlesIDNotFound()
@@ -93,6 +95,34 @@ func (h *Handler) GetUniqueArticles(params operations.GetArticlesParams) middlew
 
 	return operations.NewGetArticlesOK().WithPayload(&operations.GetArticlesOKBody{
 		Articles: modelsArticles,
+	})
+}
+
+func (h *Handler) GetDuplicateGroups(params operations.GetDuplicateGroupsParams) middleware.Responder {
+	ctx, cancel := context.WithTimeout(params.HTTPRequest.Context(), serverTimeout)
+	defer cancel()
+
+	groups, err := h.article.DuplicateGroups(ctx)
+	if err != nil {
+		return operations.NewGetDuplicateGroupsInternalServerError()
+	}
+
+	modelsDuplicateGroups := make([][]models.ArticleID, 0, len(groups))
+
+	for _, g := range groups {
+		ids := make([]models.ArticleID, 0, len(g))
+
+		if len(g) > 1 {
+			for _, id := range g {
+				ids = append(ids, models.ArticleID(id))
+			}
+
+			modelsDuplicateGroups = append(modelsDuplicateGroups, ids)
+		}
+	}
+
+	return operations.NewGetDuplicateGroupsOK().WithPayload(&operations.GetDuplicateGroupsOKBody{
+		DuplicateGroups: modelsDuplicateGroups,
 	})
 }
 
