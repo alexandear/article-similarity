@@ -5,9 +5,6 @@ RUN apk update && apk upgrade && apk add --update alpine-sdk && \
 
 WORKDIR ./src/github.com/devchallenge/article-similarity
 
-COPY go.* ./
-RUN go mod download
-
 COPY . ./
 
 RUN make build lint test
