@@ -14,7 +14,6 @@ require (
 	github.com/golang/mock v1.3.1
 	github.com/golangci/golangci-lint v1.32.0
 	github.com/hashicorp/go-multierror v1.0.0
-	github.com/pkg/errors v0.9.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.6.1
 	go.mongodb.org/mongo-driver v1.3.5

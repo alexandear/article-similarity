@@ -7,7 +7,6 @@ import (
 
 	"github.com/go-openapi/loads"
 	"github.com/hashicorp/go-multierror"
-	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
@@ -38,7 +37,7 @@ func New(
 ) (*Server, error) {
 	swaggerSpec, err := loads.Embedded(restapi.SwaggerJSON, restapi.FlatSwaggerJSON)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to embedded spec")
+		return nil, fmt.Errorf("failed to embedded spec: %w", err)
 	}
 
 	api := operations.NewArticleSimilarityAPI(swaggerSpec)
@@ -50,14 +49,14 @@ func New(
 
 	mc, err := mongo.NewClient(options.Client().ApplyURI(mongoURI))
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create mongo")
+		return nil, fmt.Errorf("failed to create mongo: %w", err)
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), defaultStorageConnectTimeout)
 	defer cancel()
 
 	if err := mc.Connect(ctx); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, fmt.Errorf("failed to connect: %w", err)
 	}
 
 	st := storage.New(mc, mongoDatabase)
@@ -99,5 +98,5 @@ func (s *Server) Close() error {
 		resErr = multierror.Append(err)
 	}
 
-	return errors.WithStack(resErr)
+	return fmt.Errorf("failed to close: %w", resErr)
 }

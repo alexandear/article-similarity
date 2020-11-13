@@ -2,12 +2,12 @@ package similarity
 
 import (
 	"encoding/csv"
+	"errors"
+	"fmt"
 	"io"
 	"log"
 	"os"
 	"strings"
-
-	"github.com/pkg/errors"
 
 	"github.com/devchallenge/article-similarity/internal/util"
 )
@@ -30,7 +30,7 @@ type irregularVerb struct {
 func (v *IrregularVerb) Load(irregularVerbFilePath string) error {
 	file, err := os.Open(irregularVerbFilePath)
 	if err != nil {
-		return errors.Wrap(err, "failed to open file")
+		return fmt.Errorf("failed to open file=%s: %w", irregularVerbFilePath, err)
 	}
 	defer util.Close(file, log.Printf)
 
@@ -45,7 +45,7 @@ func (v *IrregularVerb) Load(irregularVerbFilePath string) error {
 		}
 
 		if err != nil {
-			return errors.Wrap(err, "failed to read")
+			return fmt.Errorf("failed to read: %w", err)
 		}
 
 		if len(record) < irregularForms {

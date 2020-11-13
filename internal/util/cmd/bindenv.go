@@ -1,10 +1,10 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 )
 
@@ -44,7 +44,7 @@ func BindEnv(fs *pflag.FlagSet) error {
 			vals := strings.Split(val, " ")
 			for _, v := range vals {
 				if err := fs.Set(f.Name, v); err != nil {
-					flagError = errors.Wrapf(err, "wrapping %s with %v", f.Name, v)
+					flagError = fmt.Errorf("failed to wrap %s with %v: %w", f.Name, v, err)
 
 					return
 				}
@@ -54,11 +54,11 @@ func BindEnv(fs *pflag.FlagSet) error {
 		}
 
 		if err := fs.Set(f.Name, val); err != nil {
-			flagError = errors.Wrapf(err, "wrapping %s with %v", f.Name, val)
+			flagError = fmt.Errorf("failed to set %s with %v: %w", f.Name, val, err)
 
 			return
 		}
 	})
 
-	return errors.WithStack(flagError)
+	return flagError
 }

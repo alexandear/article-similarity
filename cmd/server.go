@@ -1,9 +1,9 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 
 	"github.com/devchallenge/article-similarity/internal/server"
@@ -17,7 +17,7 @@ func InitFlags(config *Config) error {
 	pflag.Parse()
 
 	if err := cmd.BindEnv(pflag.CommandLine); err != nil {
-		return errors.Wrap(err, "failed to bind env")
+		return fmt.Errorf("failed to bind env: %w", err)
 	}
 
 	return nil
@@ -27,7 +27,7 @@ func ExecuteServer() error {
 	config := &Config{}
 
 	if err := InitFlags(config); err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to init flags: %w", err)
 	}
 
 	logger := log.Printf
@@ -35,7 +35,7 @@ func ExecuteServer() error {
 	serv, err := server.New(logger, config.MongoHost, config.MongoPort, config.MongoDatabase,
 		config.SimilarityThreshold)
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to create server: %w", err)
 	}
 	defer util.Close(serv, logger)
 

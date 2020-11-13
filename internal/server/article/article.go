@@ -2,8 +2,7 @@ package article
 
 import (
 	"context"
-
-	"github.com/pkg/errors"
+	"fmt"
 
 	"github.com/devchallenge/article-similarity/internal/model"
 	"github.com/devchallenge/article-similarity/internal/similarity"
@@ -43,7 +42,7 @@ func New(
 func (a *Article) CreateArticle(ctx context.Context, content string) (model.Article, error) {
 	id, err := a.storage.NextArticleID(ctx)
 	if err != nil {
-		return model.Article{}, errors.Wrap(err, "failed to get next article id")
+		return model.Article{}, fmt.Errorf("failed to get next article id: %w", err)
 	}
 
 	duplicateIDs, duplicateGroupID, err := a.duplicateArticleIDsWithDuplicateGroupID(ctx, id, content)
@@ -53,11 +52,11 @@ func (a *Article) CreateArticle(ctx context.Context, content string) (model.Arti
 
 	isUnique := len(duplicateIDs) == 0
 	if err := a.storage.CreateArticle(ctx, id, content, duplicateIDs, isUnique, duplicateGroupID); err != nil {
-		return model.Article{}, errors.Wrap(err, "failed to create article")
+		return model.Article{}, fmt.Errorf("failed to create article: %w", err)
 	}
 
 	if err := a.storage.CreateDuplicateGroup(ctx, duplicateGroupID, id); err != nil {
-		return model.Article{}, errors.Wrap(err, "failed to create duplicate group")
+		return model.Article{}, fmt.Errorf("failed to create duplicate group: %w", err)
 	}
 
 	if !isUnique {
@@ -96,7 +95,7 @@ func (a *Article) updateArticlesWithDuplicateID(ctx context.Context, duplicateID
 func (a *Article) ArticleByID(ctx context.Context, id model.ArticleID) (model.Article, error) {
 	article, err := a.storage.ArticleByID(ctx, id)
 	if err != nil {
-		return model.Article{}, errors.WithStack(err)
+		return model.Article{}, fmt.Errorf("failed to get article from storage: %w", err)
 	}
 
 	return article, nil
@@ -105,7 +104,7 @@ func (a *Article) ArticleByID(ctx context.Context, id model.ArticleID) (model.Ar
 func (a *Article) UniqueArticles(ctx context.Context) ([]model.Article, error) {
 	articles, err := a.storage.UniqueArticles(ctx)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get unique articles")
+		return nil, fmt.Errorf("failed to get unique articles: %w", err)
 	}
 
 	return articles, nil
@@ -114,7 +113,7 @@ func (a *Article) UniqueArticles(ctx context.Context) ([]model.Article, error) {
 func (a *Article) DuplicateGroups(ctx context.Context) (map[model.DuplicateGroupID][]model.ArticleID, error) {
 	groups, err := a.storage.AllDuplicateGroups(ctx)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get all duplicate groups")
+		return nil, fmt.Errorf("failed to get all duplicate groups: %w", err)
 	}
 
 	duplicateGroups := make(map[model.DuplicateGroupID][]model.ArticleID, len(groups))
@@ -129,7 +128,7 @@ func (a *Article) duplicateArticleIDsWithDuplicateGroupID(ctx context.Context, i
 ) ([]model.ArticleID, model.DuplicateGroupID, error) {
 	articles, err := a.storage.AllArticles(ctx)
 	if err != nil {
-		return nil, 0, errors.Wrap(err, "failed to get all articles")
+		return nil, 0, fmt.Errorf("failed to get all articles: %w", err)
 	}
 
 	duplicates := make([]model.ArticleID, 0, len(articles))
@@ -146,7 +145,7 @@ func (a *Article) duplicateArticleIDsWithDuplicateGroupID(ctx context.Context, i
 	if duplicateGroupID == 0 {
 		gid, err := a.storage.NextDuplicateGroupID(ctx)
 		if err != nil {
-			return nil, 0, errors.Wrap(err, "failed to get next duplicate group id")
+			return nil, 0, fmt.Errorf("failed to get next duplicate group id: %w", err)
 		}
 
 		return nil, gid, nil

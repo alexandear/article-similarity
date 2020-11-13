@@ -2,11 +2,11 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
-	"github.com/pkg/errors"
 
 	internalErrors "github.com/devchallenge/article-similarity/internal/errors"
 	"github.com/devchallenge/article-similarity/internal/model"

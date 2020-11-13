@@ -2,9 +2,10 @@ package storage
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -41,7 +42,7 @@ func New(mc *mongo.Client, database string) *Storage {
 func (s *Storage) NextArticleID(ctx context.Context) (model.ArticleID, error) {
 	inc, err := s.autoincrement(ctx, collectionArticles)
 	if err != nil {
-		return 0, errors.WithStack(err)
+		return 0, fmt.Errorf("failed to get autoicrement for articles: %w", err)
 	}
 
 	return model.ArticleID(inc.Counter), nil
@@ -59,11 +60,11 @@ func (s *Storage) CreateArticle(ctx context.Context, id model.ArticleID, content
 
 	ma, err := bson.Marshal(&art)
 	if err != nil {
-		return errors.Wrap(err, "failed to marshal article")
+		return fmt.Errorf("failed to marshal article: %w", err)
 	}
 
 	if _, err := s.collectionArticle.InsertOne(ctx, ma); err != nil {
-		return errors.Wrap(err, "failed to insert article")
+		return fmt.Errorf("failed to insert article: %w", err)
 	}
 
 	return nil
@@ -76,7 +77,7 @@ func (s *Storage) UpdateArticle(ctx context.Context, id model.ArticleID, duplica
 	}
 
 	if err := s.collectionArticle.FindOneAndUpdate(ctx, filter, update, nil).Err(); err != nil {
-		return errors.Wrap(err, "failed to update article")
+		return fmt.Errorf("failed to update article: %w", err)
 	}
 
 	return nil
@@ -85,16 +86,16 @@ func (s *Storage) UpdateArticle(ctx context.Context, id model.ArticleID, duplica
 func (s *Storage) ArticleByID(ctx context.Context, id model.ArticleID) (model.Article, error) {
 	res := s.collectionArticle.FindOne(ctx, bson.D{{Key: "id", Value: id}})
 	if errors.Is(res.Err(), mongo.ErrNoDocuments) {
-		return model.Article{}, errors.Wrap(internalErrors.ErrNotFound, "not found")
+		return model.Article{}, fmt.Errorf("not found: %w", internalErrors.ErrNotFound)
 	}
 
 	if res.Err() != nil {
-		return model.Article{}, errors.Wrap(res.Err(), "failed to find")
+		return model.Article{}, fmt.Errorf("failed to find: %w", res.Err())
 	}
 
 	art := article{}
 	if err := res.Decode(&art); err != nil {
-		return model.Article{}, errors.Wrap(err, "failed to decode")
+		return model.Article{}, fmt.Errorf("failed to decode: %w", err)
 	}
 
 	return toModelArticle(art), nil
@@ -113,13 +114,13 @@ func (s *Storage) articles(ctx context.Context, filter bson.D) ([]model.Article,
 
 	cur, err := s.collectionArticle.Find(ctx, filter)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to find articles")
+		return nil, fmt.Errorf("failed to find articles: %w", err)
 	}
 
 	for cur.TryNext(ctx) && len(articles) != maxArticles {
 		art := article{}
 		if err := cur.Decode(&art); err != nil {
-			return nil, errors.Wrap(err, "failed to cursor decode to article")
+			return nil, fmt.Errorf("failed to cursor decode to article: %w", err)
 		}
 
 		articles = append(articles, toModelArticle(art))
@@ -131,7 +132,7 @@ func (s *Storage) articles(ctx context.Context, filter bson.D) ([]model.Article,
 func (s *Storage) NextDuplicateGroupID(ctx context.Context) (model.DuplicateGroupID, error) {
 	inc, err := s.autoincrement(ctx, collectionDuplicateGroups)
 	if err != nil {
-		return 0, errors.WithStack(err)
+		return 0, fmt.Errorf("failed to get autoicrement for duplicate groups: %w", err)
 	}
 
 	return model.DuplicateGroupID(inc.Counter), nil
@@ -146,11 +147,11 @@ func (s *Storage) CreateDuplicateGroup(ctx context.Context, id model.DuplicateGr
 
 	mdg, err := bson.Marshal(&dg)
 	if err != nil {
-		return errors.Wrap(err, "failed to marshal duplicate group")
+		return fmt.Errorf("failed to marshal duplicate group: %w", err)
 	}
 
 	if _, err := s.collectionDuplicateGroup.InsertOne(ctx, mdg); err != nil {
-		return errors.Wrap(err, "failed to insert duplicate group")
+		return fmt.Errorf("failed to insert duplicate group: %w", err)
 	}
 
 	return nil
@@ -161,13 +162,13 @@ func (s *Storage) AllDuplicateGroups(ctx context.Context) ([]model.DuplicateGrou
 
 	cur, err := s.collectionDuplicateGroup.Find(ctx, bson.D{})
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to find duplicate groups")
+		return nil, fmt.Errorf("failed to find duplicate groups: %w", err)
 	}
 
 	for cur.TryNext(ctx) && len(groups) != maxDuplicateGroups {
 		group := duplicateGroup{}
 		if err := cur.Decode(&group); err != nil {
-			return nil, errors.Wrap(err, "failed to cursor decode to group")
+			return nil, fmt.Errorf("failed to cursor decode to group: %w", err)
 		}
 
 		groups = append(groups, model.DuplicateGroup{
@@ -200,7 +201,7 @@ func (s *Storage) autoincrement(ctx context.Context, collection string) (*autoin
 
 	if err := s.collectionAutoincrement.FindOneAndUpdate(ctx, filter, update, opts).
 		Decode(&doc); err != nil {
-		return nil, errors.Wrap(err, "failed to find one and update")
+		return nil, fmt.Errorf("failed to find one and update: %w", err)
 	}
 
 	return doc, nil

@@ -1,7 +1,7 @@
 package errors
 
 import (
-	"github.com/pkg/errors"
+	"errors"
 )
 
 var ErrNotFound = errors.New("not found")
