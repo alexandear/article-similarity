@@ -105,6 +105,7 @@ func (s *e2eTestSuite) Test_EndToEnd_Errors() {
 }
 
 func (s *e2eTestSuite) AssertRequestResponse(reqMethod, reqPath, reqBody string, expectedStatus int, expectedBody string) {
+	s.T().Helper()
 	req := s.NewRequest(reqMethod, reqPath, reqBody)
 	resp := s.DoRequest(req)
 	s.EqualResponse(expectedStatus, expectedBody, resp)
@@ -129,6 +130,7 @@ func (s *e2eTestSuite) DoRequest(req *http.Request) *http.Response {
 }
 
 func (s *e2eTestSuite) EqualResponse(expectedStatusCode int, expectedBody string, actual *http.Response) {
+	s.T().Helper()
 	s.Require().NotNil(actual)
 	s.Require().NotNil(actual.Body)
 

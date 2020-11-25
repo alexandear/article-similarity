@@ -30,6 +30,7 @@ func TestInitFlags(t *testing.T) {
 }
 
 func assertFlagEqual(t *testing.T, name, expected string) {
+	t.Helper()
 	f := pflag.Lookup(name)
 	require.NotNil(t, f)
 	assert.Equal(t, expected, f.Value.String())
