@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"sort"
 
 	articlesim "github.com/devchallenge/article-similarity/internal"
 )
@@ -110,18 +111,40 @@ func (a *Service) UniqueArticles(ctx context.Context) ([]articlesim.Article, err
 	return articles, nil
 }
 
-func (a *Service) DuplicateGroups(ctx context.Context) (map[articlesim.DuplicateGroupID][]articlesim.ArticleID, error) {
+func (a *Service) DuplicateGroups(ctx context.Context) ([]articlesim.DuplicateGroupResp, error) {
 	groups, err := a.storage.AllDuplicateGroups(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get all duplicate groups: %w", err)
 	}
 
-	duplicateGroups := make(map[articlesim.DuplicateGroupID][]articlesim.ArticleID, len(groups))
+	duplMap := make(map[articlesim.DuplicateGroupID][]articlesim.ArticleID, len(groups))
 	for _, g := range groups {
-		duplicateGroups[g.DuplicateGroupID] = append(duplicateGroups[g.DuplicateGroupID], g.ArticleID)
+		duplMap[g.DuplicateGroupID] = append(duplMap[g.DuplicateGroupID], g.ArticleID)
 	}
 
-	return duplicateGroups, nil
+	duplWithOnes := make([]articlesim.DuplicateGroupResp, 0, len(duplMap))
+	for gid, ids := range duplMap {
+		duplWithOnes = append(duplWithOnes, articlesim.DuplicateGroupResp{
+			DuplicateGroupID: gid,
+			ArticleIDs:       ids,
+		})
+	}
+
+	duplicates := make([]articlesim.DuplicateGroupResp, 0, len(duplWithOnes))
+
+	for _, d := range duplWithOnes {
+		if len(d.ArticleIDs) <= 1 {
+			continue
+		}
+
+		duplicates = append(duplicates, d)
+	}
+
+	sort.Slice(duplicates, func(i, j int) bool {
+		return duplicates[i].DuplicateGroupID < duplicates[j].DuplicateGroupID
+	})
+
+	return duplicates, nil
 }
 
 func (a *Service) duplicateArticleIDsWithDuplicateGroupID(ctx context.Context, id articlesim.ArticleID, content string,

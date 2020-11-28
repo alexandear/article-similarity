@@ -22,4 +22,9 @@ type DuplicateGroup struct {
 	ArticleID        ArticleID
 }
 
+type DuplicateGroupResp struct {
+	DuplicateGroupID DuplicateGroupID
+	ArticleIDs       []ArticleID
+}
+
 var ErrArticleNotFound = errors.New("article not found")

@@ -21,7 +21,7 @@ type ArticleServer interface {
 	CreateArticle(ctx context.Context, content string) (articlesim.Article, error)
 	ArticleByID(ctx context.Context, id articlesim.ArticleID) (articlesim.Article, error)
 	UniqueArticles(ctx context.Context) ([]articlesim.Article, error)
-	DuplicateGroups(ctx context.Context) (map[articlesim.DuplicateGroupID][]articlesim.ArticleID, error)
+	DuplicateGroups(ctx context.Context) ([]articlesim.DuplicateGroupResp, error)
 }
 
 type Handler struct {
@@ -109,15 +109,13 @@ func (h *Handler) GetDuplicateGroups(params operations.GetDuplicateGroupsParams)
 	modelsDuplicateGroups := make([][]models.ArticleID, 0, len(groups))
 
 	for _, g := range groups {
-		ids := make([]models.ArticleID, 0, len(g))
+		ids := make([]models.ArticleID, 0, len(g.ArticleIDs))
 
-		if len(g) > 1 {
-			for _, id := range g {
-				ids = append(ids, models.ArticleID(id))
-			}
-
-			modelsDuplicateGroups = append(modelsDuplicateGroups, ids)
+		for _, id := range g.ArticleIDs {
+			ids = append(ids, models.ArticleID(id))
 		}
+
+		modelsDuplicateGroups = append(modelsDuplicateGroups, ids)
 	}
 
 	return operations.NewGetDuplicateGroupsOK().WithPayload(&operations.GetDuplicateGroupsOKBody{
