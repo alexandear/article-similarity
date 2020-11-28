@@ -5,10 +5,7 @@ services:
     image: article-similarity
     ports:
       - "80:80"
-    environment:
-      PORT: 80
-      MONGO_HOST: mongo
-      MONGO_PORT: 27017
+    entrypoint: ["article-similarity", "--host=0.0.0.0", "--port=80", "--mongo_host=mongo", "--mongo_port=27017"]
   mongo:
     image: "mongo:latest"
     ports:

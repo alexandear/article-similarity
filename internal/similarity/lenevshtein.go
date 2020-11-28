@@ -1,9 +1,5 @@
 package similarity
 
-import (
-	"github.com/devchallenge/article-similarity/internal/util"
-)
-
 // Levenshtein represents the Levenshtein metric for measuring the similarity between sequences.
 //   For more information see https://en.wikipedia.org/wiki/Levenshtein_distance.
 type Levenshtein struct {
@@ -51,7 +47,7 @@ func (m *Levenshtein) Compare(sequenceA, sequenceB []Element, compare CompareFn)
 		return compareSame
 	}
 
-	maxLen := util.Max(len(sequenceA), len(sequenceB))
+	maxLen := Max(len(sequenceA), len(sequenceB))
 
 	return compareSame - float64(distance)/float64(maxLen)
 }
@@ -90,7 +86,7 @@ func (m *Levenshtein) Distance(sequenceA, sequenceB []Element, compare CompareFn
 				subCost += m.ReplaceCost
 			}
 
-			col[j+1] = util.Min(delCost, insCost, subCost)
+			col[j+1] = Min(delCost, insCost, subCost)
 		}
 
 		col, prevCol = prevCol, col

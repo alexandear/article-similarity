@@ -15,6 +15,4 @@ FROM alpine
 COPY --from=build /usr/local/bin/ /usr/local/bin/
 COPY --from=build /assets ./assets
 
-ENV HOST 0.0.0.0
-
-ENTRYPOINT ["article-similarity"]
+ENTRYPOINT ["article-similarity", "--host=0.0.0.0", "--port=80"]

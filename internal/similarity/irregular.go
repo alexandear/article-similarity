@@ -8,8 +8,6 @@ import (
 	"log"
 	"os"
 	"strings"
-
-	"github.com/devchallenge/article-similarity/internal/util"
 )
 
 const (
@@ -32,7 +30,12 @@ func (v *IrregularVerb) Load(irregularVerbFilePath string) error {
 	if err != nil {
 		return fmt.Errorf("failed to open file=%s: %w", irregularVerbFilePath, err)
 	}
-	defer util.Close(file, log.Printf)
+
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.Printf("file close failed: %v", err)
+		}
+	}()
 
 	reader := csv.NewReader(file)
 
