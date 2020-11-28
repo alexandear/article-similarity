@@ -1,4 +1,4 @@
-package handler
+package http
 
 import (
 	"context"
@@ -8,10 +8,9 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 
-	internalErrors "github.com/devchallenge/article-similarity/internal/errors"
-	"github.com/devchallenge/article-similarity/internal/model"
-	"github.com/devchallenge/article-similarity/internal/swagger/models"
-	"github.com/devchallenge/article-similarity/internal/swagger/restapi/operations"
+	articlesim "github.com/devchallenge/article-similarity/internal"
+	"github.com/devchallenge/article-similarity/internal/http/models"
+	"github.com/devchallenge/article-similarity/internal/http/restapi/operations"
 )
 
 const (
@@ -19,10 +18,10 @@ const (
 )
 
 type ArticleServer interface {
-	CreateArticle(ctx context.Context, content string) (model.Article, error)
-	ArticleByID(ctx context.Context, id model.ArticleID) (model.Article, error)
-	UniqueArticles(ctx context.Context) ([]model.Article, error)
-	DuplicateGroups(ctx context.Context) (map[model.DuplicateGroupID][]model.ArticleID, error)
+	CreateArticle(ctx context.Context, content string) (articlesim.Article, error)
+	ArticleByID(ctx context.Context, id articlesim.ArticleID) (articlesim.Article, error)
+	UniqueArticles(ctx context.Context) ([]articlesim.Article, error)
+	DuplicateGroups(ctx context.Context) (map[articlesim.DuplicateGroupID][]articlesim.ArticleID, error)
 }
 
 type Handler struct {
@@ -66,9 +65,9 @@ func (h *Handler) GetArticleByID(params operations.GetArticlesIDParams) middlewa
 	ctx, cancel := context.WithTimeout(params.HTTPRequest.Context(), serverTimeout)
 	defer cancel()
 
-	article, err := h.article.ArticleByID(ctx, model.ArticleID(params.ID))
+	article, err := h.article.ArticleByID(ctx, articlesim.ArticleID(params.ID))
 
-	if errors.Is(err, internalErrors.ErrNotFound) {
+	if errors.Is(err, articlesim.ErrArticleNotFound) {
 		return operations.NewGetArticlesIDNotFound()
 	}
 
@@ -126,7 +125,7 @@ func (h *Handler) GetDuplicateGroups(params operations.GetDuplicateGroupsParams)
 	})
 }
 
-func modelsArticle(article model.Article) *models.Article {
+func modelsArticle(article articlesim.Article) *models.Article {
 	const maxDuplicates = 100
 
 	duplicateIDs := make([]int64, 0, maxDuplicates)

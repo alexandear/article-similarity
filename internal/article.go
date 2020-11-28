@@ -1,4 +1,8 @@
-package model
+package articlesim
+
+import (
+	"errors"
+)
 
 type (
 	ArticleID        int
@@ -17,3 +21,5 @@ type DuplicateGroup struct {
 	DuplicateGroupID DuplicateGroupID
 	ArticleID        ArticleID
 }
+
+var ErrArticleNotFound = errors.New("article not found")

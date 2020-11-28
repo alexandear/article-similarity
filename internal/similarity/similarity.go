@@ -3,8 +3,6 @@ package similarity
 import (
 	"log"
 	"strings"
-
-	"github.com/devchallenge/article-similarity/internal/str"
 )
 
 type Similarity struct {
@@ -47,7 +45,7 @@ func (s *Similarity) Similarity(idA int, contentA string, idB int, contentB stri
 // normalizeAndReturnWords removes non-alphanumeric character, splits by whitespace characters,
 // removes articles (a, an, the), change verbs to infinitives and returns lowercase words.
 func (s *Similarity) normalizeAndReturnWords(content string) []string {
-	modContent := string(str.Strip([]byte(content)))
+	modContent := string(Strip([]byte(content)))
 	modContent = strings.ToLower(modContent)
 	fields := strings.Fields(modContent)
 
@@ -55,7 +53,7 @@ func (s *Similarity) normalizeAndReturnWords(content string) []string {
 	articles := []string{"a", "an", "the"}
 
 	for _, t := range fields {
-		if str.Contains(articles, t) {
+		if Contains(articles, t) {
 			continue
 		}
 

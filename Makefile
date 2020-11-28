@@ -5,30 +5,6 @@ export GOBIN := $(MAKEFILE_PATH)/bin
 
 all: clean format swagger build test
 
-help:
-	@echo 'Usage: make <TARGETS> ... <OPTIONS>'
-	@echo ''
-	@echo 'Available targets are:'
-	@echo ''
-	@echo '    build              Compile packages and dependencies.'
-	@echo '    clean              Remove binary.'
-	@echo '    format             Run gofmt on package sources.'
-	@echo '    generate           Generate swagger code, mocks and other code.'
-	@echo '    help               Show this help screen.'
-	@echo '    lint               Run linter.'
-	@echo '    swagger            Generate only swagger code.'
-	@echo '    swagger-doc        Serve swagger docs.'
-	@echo '    test               Run unit tests.'
-	@echo '    test-it            Run integration tests.'
-	@echo '    docker             Build docker image.'
-	@echo '    docker-run         Run docker image.'
-	@echo '    docker-dev         Build build, lint in docker image.'
-	@echo '    doc                Regenerate documentation.'
-	@echo '    doc-install        Install generator tool for docs.'
-	@echo ''
-	@echo 'Targets run by default are: clean format swagger build test'
-	@echo ''
-
 clean:
 	@echo clean
 	@go clean
@@ -59,7 +35,7 @@ format:
 
 SWAGGER          = $(GOBIN)/swagger
 SPEC             = $(MAKEFILE_PATH)/api/spec.yaml
-SWAGGER_GEN_PATH = $(MAKEFILE_PATH)/internal/swagger
+SWAGGER_GEN_PATH = $(MAKEFILE_PATH)/internal/http
 
 swagger-doc:
 	@echo swagger doc

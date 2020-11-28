@@ -7,11 +7,11 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	internalErrors "github.com/devchallenge/article-similarity/internal/errors"
-	"github.com/devchallenge/article-similarity/internal/model"
+	articlesim "github.com/devchallenge/article-similarity/internal"
 )
 
 const (
@@ -22,6 +22,26 @@ const (
 	collectionDuplicateGroups = "duplicate_groups"
 	collectionAutoincrement   = "autoincrement"
 )
+
+type article struct {
+	ID               articlesim.ArticleID        `bson:"id"`
+	Content          string                      `bson:"content"`
+	DuplicateIDs     []articlesim.ArticleID      `bson:"duplicate_ids"`
+	IsUnique         bool                        `bson:"is_unique"`
+	DuplicateGroupID articlesim.DuplicateGroupID `bson:"duplicate_group_id"`
+}
+
+type duplicateGroup struct {
+	ID        articlesim.DuplicateGroupID `bson:"id"`
+	ArticleID articlesim.ArticleID        `bson:"article_id"`
+}
+
+type autoincrement struct {
+	ID         primitive.ObjectID `bson:"_id"`
+	Collection string             `bson:"collection"`
+	Counter    int                `bson:"counter"`
+	UpdatedAt  time.Time          `bson:"updated_at"`
+}
 
 type Storage struct {
 	collectionArticle        *mongo.Collection
@@ -39,17 +59,17 @@ func New(mc *mongo.Client, database string) *Storage {
 	}
 }
 
-func (s *Storage) NextArticleID(ctx context.Context) (model.ArticleID, error) {
+func (s *Storage) NextArticleID(ctx context.Context) (articlesim.ArticleID, error) {
 	inc, err := s.autoincrement(ctx, collectionArticles)
 	if err != nil {
 		return 0, fmt.Errorf("failed to get autoicrement for articles: %w", err)
 	}
 
-	return model.ArticleID(inc.Counter), nil
+	return articlesim.ArticleID(inc.Counter), nil
 }
 
-func (s *Storage) CreateArticle(ctx context.Context, id model.ArticleID, content string, duplicateIDs []model.ArticleID,
-	isUnique bool, duplicateGroupID model.DuplicateGroupID) error {
+func (s *Storage) CreateArticle(ctx context.Context, id articlesim.ArticleID, content string,
+	duplicateIDs []articlesim.ArticleID, isUnique bool, duplicateGroupID articlesim.DuplicateGroupID) error {
 	art := article{
 		ID:               id,
 		Content:          content,
@@ -70,7 +90,8 @@ func (s *Storage) CreateArticle(ctx context.Context, id model.ArticleID, content
 	return nil
 }
 
-func (s *Storage) UpdateArticle(ctx context.Context, id model.ArticleID, duplicateIDs []model.ArticleID) error {
+func (s *Storage) UpdateArticle(ctx context.Context, id articlesim.ArticleID,
+	duplicateIDs []articlesim.ArticleID) error {
 	filter := bson.D{{Key: "id", Value: id}}
 	update := bson.M{
 		"$set": bson.M{"duplicate_ids": duplicateIDs},
@@ -83,34 +104,34 @@ func (s *Storage) UpdateArticle(ctx context.Context, id model.ArticleID, duplica
 	return nil
 }
 
-func (s *Storage) ArticleByID(ctx context.Context, id model.ArticleID) (model.Article, error) {
+func (s *Storage) ArticleByID(ctx context.Context, id articlesim.ArticleID) (articlesim.Article, error) {
 	res := s.collectionArticle.FindOne(ctx, bson.D{{Key: "id", Value: id}})
 	if errors.Is(res.Err(), mongo.ErrNoDocuments) {
-		return model.Article{}, fmt.Errorf("not found: %w", internalErrors.ErrNotFound)
+		return articlesim.Article{}, fmt.Errorf("not found: %w", articlesim.ErrArticleNotFound)
 	}
 
 	if res.Err() != nil {
-		return model.Article{}, fmt.Errorf("failed to find: %w", res.Err())
+		return articlesim.Article{}, fmt.Errorf("failed to find: %w", res.Err())
 	}
 
 	art := article{}
 	if err := res.Decode(&art); err != nil {
-		return model.Article{}, fmt.Errorf("failed to decode: %w", err)
+		return articlesim.Article{}, fmt.Errorf("failed to decode: %w", err)
 	}
 
 	return toModelArticle(art), nil
 }
 
-func (s *Storage) AllArticles(ctx context.Context) ([]model.Article, error) {
+func (s *Storage) AllArticles(ctx context.Context) ([]articlesim.Article, error) {
 	return s.articles(ctx, bson.D{})
 }
 
-func (s *Storage) UniqueArticles(ctx context.Context) ([]model.Article, error) {
+func (s *Storage) UniqueArticles(ctx context.Context) ([]articlesim.Article, error) {
 	return s.articles(ctx, bson.D{{Key: "is_unique", Value: true}})
 }
 
-func (s *Storage) articles(ctx context.Context, filter bson.D) ([]model.Article, error) {
-	articles := make([]model.Article, 0, maxArticles)
+func (s *Storage) articles(ctx context.Context, filter bson.D) ([]articlesim.Article, error) {
+	articles := make([]articlesim.Article, 0, maxArticles)
 
 	cur, err := s.collectionArticle.Find(ctx, filter)
 	if err != nil {
@@ -129,17 +150,17 @@ func (s *Storage) articles(ctx context.Context, filter bson.D) ([]model.Article,
 	return articles, nil
 }
 
-func (s *Storage) NextDuplicateGroupID(ctx context.Context) (model.DuplicateGroupID, error) {
+func (s *Storage) NextDuplicateGroupID(ctx context.Context) (articlesim.DuplicateGroupID, error) {
 	inc, err := s.autoincrement(ctx, collectionDuplicateGroups)
 	if err != nil {
 		return 0, fmt.Errorf("failed to get autoicrement for duplicate groups: %w", err)
 	}
 
-	return model.DuplicateGroupID(inc.Counter), nil
+	return articlesim.DuplicateGroupID(inc.Counter), nil
 }
 
-func (s *Storage) CreateDuplicateGroup(ctx context.Context, id model.DuplicateGroupID, articleID model.ArticleID,
-) error {
+func (s *Storage) CreateDuplicateGroup(ctx context.Context, id articlesim.DuplicateGroupID,
+	articleID articlesim.ArticleID) error {
 	dg := duplicateGroup{
 		ID:        id,
 		ArticleID: articleID,
@@ -157,8 +178,8 @@ func (s *Storage) CreateDuplicateGroup(ctx context.Context, id model.DuplicateGr
 	return nil
 }
 
-func (s *Storage) AllDuplicateGroups(ctx context.Context) ([]model.DuplicateGroup, error) {
-	groups := make([]model.DuplicateGroup, 0, maxDuplicateGroups)
+func (s *Storage) AllDuplicateGroups(ctx context.Context) ([]articlesim.DuplicateGroup, error) {
+	groups := make([]articlesim.DuplicateGroup, 0, maxDuplicateGroups)
 
 	cur, err := s.collectionDuplicateGroup.Find(ctx, bson.D{})
 	if err != nil {
@@ -171,7 +192,7 @@ func (s *Storage) AllDuplicateGroups(ctx context.Context) ([]model.DuplicateGrou
 			return nil, fmt.Errorf("failed to cursor decode to group: %w", err)
 		}
 
-		groups = append(groups, model.DuplicateGroup{
+		groups = append(groups, articlesim.DuplicateGroup{
 			DuplicateGroupID: group.ID,
 			ArticleID:        group.ArticleID,
 		})
@@ -180,8 +201,8 @@ func (s *Storage) AllDuplicateGroups(ctx context.Context) ([]model.DuplicateGrou
 	return groups, nil
 }
 
-func toModelArticle(art article) model.Article {
-	return model.Article{
+func toModelArticle(art article) articlesim.Article {
+	return articlesim.Article{
 		ID:               art.ID,
 		Content:          art.Content,
 		DuplicateIDs:     art.DuplicateIDs,

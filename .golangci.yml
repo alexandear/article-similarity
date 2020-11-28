@@ -43,4 +43,4 @@ issues:
         - gomnd
         - nlreturn
         - errorlint
-      path: "internal/swagger/restapi/error.go"
+      path: "internal/http/restapi/error.go"

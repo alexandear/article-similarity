@@ -1,6 +1,7 @@
-internal/swagger/restapi/operations/** -diff
-internal/swagger/restapi/doc.go -diff
-internal/swagger/restapi/embedded_spec.go -diff
-internal/swagger/restapi/error.go -diff
-internal/swagger/restapi/server.go -diff
-internal/swagger/models/** -diff
+internal/http/restapi/operations/** -diff
+internal/http/restapi/doc.go -diff
+internal/http/restapi/embedded_spec.go -diff
+internal/http/restapi/error.go -diff
+internal/http/restapi/server.go -diff
+internal/http/models/** -diff
+vendor/** -diff

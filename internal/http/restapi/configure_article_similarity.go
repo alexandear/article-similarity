@@ -9,7 +9,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 
-	"github.com/devchallenge/article-similarity/internal/swagger/restapi/operations"
+	"github.com/devchallenge/article-similarity/internal/http/restapi/operations"
 )
 
 //go:generate swagger generate server --target ../../internal --name ArticleSimilarityAPI --spec ../../api/spec.yaml --principal interface{} --exclude-main
