@@ -1,29 +1,27 @@
 package similarity
 
 import (
+	"log"
 	"strings"
 
 	"github.com/devchallenge/article-similarity/internal/str"
 )
 
 type Similarity struct {
-	logger    func(format string, v ...interface{})
 	threshold float64
 
 	irregular IrregularVerb
 }
 
-func NewSimilarity(logger func(format string, v ...interface{}), threshold float64, irregular IrregularVerb,
-) *Similarity {
+func NewSimilarity(threshold float64, irregular IrregularVerb) *Similarity {
 	return &Similarity{
-		logger:    logger,
 		threshold: threshold,
 		irregular: irregular,
 	}
 }
 
 func (s *Similarity) IsSimilar(idA int, contentA string, idB int, contentB string) bool {
-	s.logger("use similarity threshold: %f to compare %d and %d", s.threshold, idA, idB)
+	log.Printf("use similarity threshold: %f to compare %d and %d", s.threshold, idA, idB)
 
 	sim := s.Similarity(idA, contentA, idB, contentB) >= s.threshold
 
@@ -33,11 +31,11 @@ func (s *Similarity) IsSimilar(idA int, contentA string, idB int, contentB strin
 func (s *Similarity) Similarity(idA int, contentA string, idB int, contentB string) float64 {
 	lev := NewLevenshtein()
 
-	s.logger("normalizing %d", idA)
+	log.Printf("normalizing %d", idA)
 
 	normA := s.normalizeAndReturnWords(contentA)
 
-	s.logger("normalizing %d", idB)
+	log.Printf("normalizing %d", idB)
 
 	normB := s.normalizeAndReturnWords(contentB)
 

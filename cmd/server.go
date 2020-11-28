@@ -15,9 +15,7 @@ func ExecuteServer() error {
 
 	pflag.Parse()
 
-	logger := log.Printf
-
-	serv, err := server.New(logger, config.MongoHost, config.MongoPort, config.MongoDatabase,
+	serv, err := server.New(config.MongoHost, config.MongoPort, config.MongoDatabase,
 		config.SimilarityThreshold)
 	if err != nil {
 		return fmt.Errorf("failed to create server: %w", err)
@@ -25,7 +23,7 @@ func ExecuteServer() error {
 
 	defer func() {
 		if err := serv.Close(); err != nil {
-			logger("server close failed: %v", err)
+			log.Printf("server close failed: %v", err)
 		}
 	}()
 

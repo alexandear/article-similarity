@@ -3,13 +3,13 @@ package article
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/devchallenge/article-similarity/internal/model"
 	"github.com/devchallenge/article-similarity/internal/similarity"
 )
 
 type Article struct {
-	logger  func(format string, v ...interface{})
 	sim     *similarity.Similarity
 	storage Storage
 }
@@ -27,13 +27,8 @@ type Storage interface {
 	AllDuplicateGroups(ctx context.Context) ([]model.DuplicateGroup, error)
 }
 
-func New(
-	logger func(format string, v ...interface{}),
-	sim *similarity.Similarity,
-	storage Storage,
-) *Article {
+func New(sim *similarity.Similarity, storage Storage) *Article {
 	return &Article{
-		logger:  logger,
 		sim:     sim,
 		storage: storage,
 	}
@@ -47,7 +42,7 @@ func (a *Article) CreateArticle(ctx context.Context, content string) (model.Arti
 
 	duplicateIDs, duplicateGroupID, err := a.duplicateArticleIDsWithDuplicateGroupID(ctx, id, content)
 	if err != nil {
-		a.logger("failed to find duplicate articles ids: %v", err)
+		log.Printf("failed to find duplicate articles ids: %v", err)
 	}
 
 	isUnique := len(duplicateIDs) == 0
@@ -77,7 +72,7 @@ func (a *Article) updateArticlesWithDuplicateID(ctx context.Context, duplicateID
 	for _, did := range duplicateIDs {
 		art, err := a.storage.ArticleByID(ctx, did)
 		if err != nil {
-			a.logger("failed to get article by id=%d: %v", did, err)
+			log.Printf("failed to get article by id=%d: %v", did, err)
 
 			continue
 		}
@@ -87,7 +82,7 @@ func (a *Article) updateArticlesWithDuplicateID(ctx context.Context, duplicateID
 		}
 
 		if err := a.storage.UpdateArticle(ctx, art.ID, append(art.DuplicateIDs, id)); err != nil {
-			a.logger("failed to update article=%d: %v", art.ID, err)
+			log.Printf("failed to update article=%d: %v", art.ID, err)
 		}
 	}
 }

@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/go-openapi/loads"
@@ -31,7 +32,6 @@ type Server struct {
 }
 
 func New(
-	logger func(format string, v ...interface{}),
 	mongoHost string, mongoPort int, mongoDatabase string,
 	similarityThreshold float64,
 ) (*Server, error) {
@@ -41,11 +41,11 @@ func New(
 	}
 
 	api := operations.NewArticleSimilarityAPI(swaggerSpec)
-	api.Logger = logger
+	api.Logger = log.Printf
 	rest := restapi.NewServer(api)
 
 	mongoURI := fmt.Sprintf("mongodb://%s:%d", mongoHost, mongoPort)
-	logger("mongoURI: %s", mongoURI)
+	log.Printf("mongoURI: %s", mongoURI)
 
 	mc, err := mg.NewClient(options.Client().ApplyURI(mongoURI))
 	if err != nil {
@@ -63,10 +63,10 @@ func New(
 
 	irregularVerb := similarity.IrregularVerb{}
 	if err := irregularVerb.Load(irregularVerbFilePath); err != nil {
-		logger("failed to load irregular verbs from=%s: %v", irregularVerbFilePath, err)
+		log.Printf("failed to load irregular verbs from=%s: %v", irregularVerbFilePath, err)
 	}
 
-	art := article.New(logger, similarity.NewSimilarity(logger, similarityThreshold, irregularVerb), st)
+	art := article.New(similarity.NewSimilarity(similarityThreshold, irregularVerb), st)
 
 	server := &Server{
 		rest:    rest,
