@@ -7,13 +7,13 @@ import (
 
 	"github.com/go-openapi/loads"
 	"github.com/hashicorp/go-multierror"
-	"go.mongodb.org/mongo-driver/mongo"
+	mg "go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/devchallenge/article-similarity/internal/handler"
+	"github.com/devchallenge/article-similarity/internal/mongo"
 	"github.com/devchallenge/article-similarity/internal/server/article"
 	"github.com/devchallenge/article-similarity/internal/similarity"
-	"github.com/devchallenge/article-similarity/internal/storage"
 	"github.com/devchallenge/article-similarity/internal/swagger/restapi"
 	"github.com/devchallenge/article-similarity/internal/swagger/restapi/operations"
 )
@@ -26,7 +26,7 @@ const (
 
 type Server struct {
 	rest    *restapi.Server
-	mongo   *mongo.Client
+	mongo   *mg.Client
 	article *article.Article
 }
 
@@ -47,7 +47,7 @@ func New(
 	mongoURI := fmt.Sprintf("mongodb://%s:%d", mongoHost, mongoPort)
 	logger("mongoURI: %s", mongoURI)
 
-	mc, err := mongo.NewClient(options.Client().ApplyURI(mongoURI))
+	mc, err := mg.NewClient(options.Client().ApplyURI(mongoURI))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create mongo: %w", err)
 	}
@@ -59,7 +59,7 @@ func New(
 		return nil, fmt.Errorf("failed to connect: %w", err)
 	}
 
-	st := storage.New(mc, mongoDatabase)
+	st := mongo.New(mc, mongoDatabase)
 
 	irregularVerb := similarity.IrregularVerb{}
 	if err := irregularVerb.Load(irregularVerbFilePath); err != nil {
