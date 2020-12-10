@@ -2,6 +2,7 @@ MAKEFILE_PATH := $(abspath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 PATH := $(MAKEFILE_PATH):$(PATH)
 
 export GOBIN := $(MAKEFILE_PATH)/bin
+export GOFLAGS = -mod=vendor
 
 all: clean format swagger build test
 

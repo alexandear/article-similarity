@@ -1,14 +1,13 @@
 FROM golang:1.15-alpine as build
 
-RUN apk update && apk upgrade && apk add --update alpine-sdk && \
-    apk add --no-cache git make
-
-WORKDIR ./src/github.com/devchallenge/article-similarity
+WORKDIR ./src
 
 COPY ./assets /assets
 COPY . ./
 
-RUN make build && cp ./bin/article-similarity /usr/local/bin/
+RUN go build -mod=vendor -o=./bin/article-similarity main.go && \
+    cp ./bin/article-similarity /usr/local/bin/ && \
+    rm -rf /go/src
 
 FROM alpine
 
